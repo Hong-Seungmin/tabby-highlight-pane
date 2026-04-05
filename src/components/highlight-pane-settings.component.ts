@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core'
-import { ConfigService } from 'tabby-core'
+import { ConfigService, ThemesService } from 'tabby-core'
 import { DEFAULT_CONFIG, HighlightConfig } from '../config'
+import { getActiveThemeColor } from '../theme-utils'
 
 /**
  * Highlight Pane 설정 화면 컴포넌트
@@ -66,6 +67,39 @@ import { DEFAULT_CONFIG, HighlightConfig } from '../config'
           활성 구역
         </h4>
 
+        <!-- 테마 색상 자동 적용 -->
+        <div class="form-line">
+          <div class="header">
+            <div class="title">테마 색상 자동 적용</div>
+            <div class="description">
+              다크/라이트 모드에 따라 터미널 색상표의 지정 번호 색상을 테두리·글로우에 자동 적용합니다.
+              (Standard 테마 = 다크 색상표, Paper 테마 = 라이트 색상표)
+            </div>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <!-- ON/OFF 토글 -->
+            <div class="form-check form-switch mb-0">
+              <input class="form-check-input" type="checkbox" id="hp-dynamic-color"
+                [(ngModel)]="config.dynamicBorderColor" (ngModelChange)="onDynamicColorChange($event)">
+              <label class="form-check-label" for="hp-dynamic-color"></label>
+            </div>
+            <!-- 색상 번호 선택 (동적 모드 ON 시에만 표시) -->
+            <ng-container *ngIf="config.dynamicBorderColor">
+              <span class="text-muted" style="font-size:0.85rem">색상</span>
+              <input type="number" class="form-control form-control-sm"
+                style="width:58px; text-align:center; padding:2px 6px"
+                min="1" max="15" step="1"
+                [(ngModel)]="config.themeColorIndex"
+                (ngModelChange)="onThemeColorIndexChange($event)">
+              <span class="text-muted" style="font-size:0.85rem">번</span>
+              <!-- 현재 선택된 테마 색상 미리보기 -->
+              <div [style.background]="getThemeColor()"
+                style="width:22px; height:22px; border-radius:4px; border:1px solid rgba(128,128,128,0.35); flex-shrink:0"
+                [title]="getThemeColor()"></div>
+            </ng-container>
+          </div>
+        </div>
+
         <!-- 테두리 색상 (공통 — 툴바와 링크 가능) -->
         <div class="form-line">
           <div class="header">
@@ -77,10 +111,15 @@ import { DEFAULT_CONFIG, HighlightConfig } from '../config'
           </div>
           <div class="d-flex align-items-center gap-2">
             <input type="color" class="form-control form-control-color"
-              style="width:44px; height:32px; padding:2px; cursor:pointer"
+              style="width:44px; height:32px; padding:2px"
+              [style.cursor]="config.dynamicBorderColor ? 'not-allowed' : 'pointer'"
+              [style.opacity]="config.dynamicBorderColor ? '0.55' : '1'"
+              [style.pointerEvents]="config.dynamicBorderColor ? 'none' : 'auto'"
               [(ngModel)]="config.borderColor"
               (ngModelChange)="onActivePaneCommon('borderColor', 'toolbarBorderColor', $event)">
             <span class="text-muted font-monospace">{{ config.borderColor }}</span>
+            <span *ngIf="config.dynamicBorderColor"
+              style="font-size:0.72rem; padding:1px 7px; border-radius:10px; background:rgba(133,164,174,0.15); color:#85A4AE">자동</span>
           </div>
         </div>
 
@@ -268,10 +307,15 @@ import { DEFAULT_CONFIG, HighlightConfig } from '../config'
             </div>
             <div class="d-flex align-items-center gap-2">
               <input type="color" class="form-control form-control-color"
-                style="width:44px; height:32px; padding:2px; cursor:pointer"
+                style="width:44px; height:32px; padding:2px"
+                [style.cursor]="config.dynamicBorderColor ? 'not-allowed' : 'pointer'"
+                [style.opacity]="config.dynamicBorderColor ? '0.55' : '1'"
+                [style.pointerEvents]="config.dynamicBorderColor ? 'none' : 'auto'"
                 [(ngModel)]="config.toolbarBorderColor"
                 (ngModelChange)="onToolbarCommon('borderColor', 'toolbarBorderColor', $event)">
               <span class="text-muted font-monospace">{{ config.toolbarBorderColor }}</span>
+              <span *ngIf="config.dynamicBorderColor"
+                style="font-size:0.72rem; padding:1px 7px; border-radius:10px; background:rgba(133,164,174,0.15); color:#85A4AE">자동</span>
             </div>
           </div>
 
@@ -410,7 +454,7 @@ import { DEFAULT_CONFIG, HighlightConfig } from '../config'
 export class HighlightPaneSettingsComponent implements OnInit {
   config: HighlightConfig = { ...DEFAULT_CONFIG }
 
-  constructor (public configService: ConfigService) {}
+  constructor (public configService: ConfigService, private themesService: ThemesService) {}
 
   ngOnInit (): void {
     this.config = this.loadConfig()
@@ -421,11 +465,47 @@ export class HighlightPaneSettingsComponent implements OnInit {
       this.configService.store.highlightPane = {}
     }
     Object.assign(this.configService.store.highlightPane, this.config)
+    // 동적 색상 모드에서는 borderColor 를 config 에 저장하지 않음
+    // → 항상 현재 테마(다크/라이트)의 colorScheme.colors[4] 를 동적으로 읽도록 유지
+    if (this.config.dynamicBorderColor) {
+      delete this.configService.store.highlightPane.borderColor
+      delete this.configService.store.highlightPane.toolbarBorderColor
+    }
     this.configService.save()
   }
 
   reset (): void {
-    this.config = { ...DEFAULT_CONFIG }
+    this.config = { ...DEFAULT_CONFIG }   // themeColorIndex = 4 포함
+    const themeColor = this.getThemeColor()  // 현재 테마 색상으로 즉시 적용
+    this.config.borderColor = themeColor
+    this.config.toolbarBorderColor = themeColor
+    this.save()
+  }
+
+  /**
+   * 테마 색상 자동 적용 토글 핸들러
+   * ON 으로 전환 시 현재 테마 색상으로 즉시 UI 갱신
+   */
+  onDynamicColorChange (dynamic: boolean): void {
+    if (dynamic) {
+      const themeColor = this.getThemeColor()
+      this.config.borderColor = themeColor
+      this.config.toolbarBorderColor = themeColor
+    }
+    this.save()
+  }
+
+  /**
+   * 테마 색상 번호 변경 핸들러 (1-15 범위 제한)
+   */
+  onThemeColorIndexChange (value: number): void {
+    const clamped = Math.max(1, Math.min(15, Math.round(+value) || DEFAULT_CONFIG.themeColorIndex))
+    this.config.themeColorIndex = clamped
+    if (this.config.dynamicBorderColor) {
+      const themeColor = this.getThemeColor()
+      this.config.borderColor = themeColor
+      this.config.toolbarBorderColor = themeColor
+    }
     this.save()
   }
 
@@ -434,7 +514,6 @@ export class HighlightPaneSettingsComponent implements OnInit {
    * 동기화 ON 시 해당 툴바 설정도 동일하게 적용
    */
   onActivePaneCommon (activeKey: keyof HighlightConfig, toolbarKey: keyof HighlightConfig, value: any): void {
-    // ngModel이 activeKey 값을 이미 설정한 상태로 호출됨
     if (this.config.syncActiveToolbar) {
       (this.config as any)[toolbarKey] = value
     }
@@ -446,7 +525,6 @@ export class HighlightPaneSettingsComponent implements OnInit {
    * 동기화 ON 시 해당 활성 구역 설정도 동일하게 적용
    */
   onToolbarCommon (activeKey: keyof HighlightConfig, toolbarKey: keyof HighlightConfig, value: any): void {
-    // ngModel이 toolbarKey 값을 이미 설정한 상태로 호출됨
     if (this.config.syncActiveToolbar) {
       (this.config as any)[activeKey] = value
     }
@@ -460,7 +538,6 @@ export class HighlightPaneSettingsComponent implements OnInit {
   toggleSync (): void {
     this.config.syncActiveToolbar = !this.config.syncActiveToolbar
     if (this.config.syncActiveToolbar) {
-      // 활성 구역 값을 기준으로 툴바 공통 설정 동기화
       this.config.toolbarBorderColor   = this.config.borderColor
       this.config.toolbarBorderWidth   = this.config.borderWidth
       this.config.toolbarInnerGlowSize  = this.config.innerGlowSize
@@ -471,11 +548,29 @@ export class HighlightPaneSettingsComponent implements OnInit {
     this.save()
   }
 
+  /**
+   * 현재 Tabby 테마(다크/라이트)에 맞는 색상표에서 themeColorIndex 번 색상을 반환합니다.
+   * ThemesService.findCurrentTheme().name으로 실제 활성 테마를 정확히 판별합니다.
+   * 템플릿 색상 미리보기에서도 사용됩니다 (public).
+   */
+  getThemeColor (): string {
+    const idx = this.config?.themeColorIndex ?? DEFAULT_CONFIG.themeColorIndex
+    const currentThemeName = this.themesService.findCurrentTheme()?.name ?? ''
+    return getActiveThemeColor(this.configService.store, currentThemeName, idx)
+  }
+
   private loadConfig (): HighlightConfig {
     const u = this.configService.store?.highlightPane ?? {}
+    // dynamicBorderColor 기본값: true (명시적으로 false 저장 시에만 수동 모드)
+    const isDynamic = u.dynamicBorderColor !== false
+    const colorIndex = u.themeColorIndex ?? DEFAULT_CONFIG.themeColorIndex
+    // ThemesService로 현재 실제 테마 이름 읽기 → 다크/라이트 정확히 판별
+    const currentThemeName = this.themesService.findCurrentTheme()?.name ?? ''
+    const themeColor = getActiveThemeColor(this.configService.store, currentThemeName, colorIndex)
     return {
       enabled:               u.enabled               ?? DEFAULT_CONFIG.enabled,
-      borderColor:           u.borderColor           ?? DEFAULT_CONFIG.borderColor,
+      // 동적 모드: 저장된 색상 무시하고 항상 현재 테마 색상 사용
+      borderColor:           isDynamic ? themeColor : (u.borderColor        ?? themeColor),
       borderWidth:           u.borderWidth           ?? DEFAULT_CONFIG.borderWidth,
       borderStyle:           u.borderStyle           ?? DEFAULT_CONFIG.borderStyle,
       innerGlowSize:         u.innerGlowSize         ?? DEFAULT_CONFIG.innerGlowSize,
@@ -487,7 +582,7 @@ export class HighlightPaneSettingsComponent implements OnInit {
       inactiveOpacity:       u.inactiveOpacity       ?? DEFAULT_CONFIG.inactiveOpacity,
       inactiveTransition:    u.inactiveTransition    ?? DEFAULT_CONFIG.inactiveTransition,
       toolbarBrightness:     u.toolbarBrightness     ?? DEFAULT_CONFIG.toolbarBrightness,
-      toolbarBorderColor:    u.toolbarBorderColor    ?? DEFAULT_CONFIG.toolbarBorderColor,
+      toolbarBorderColor:    isDynamic ? themeColor : (u.toolbarBorderColor ?? themeColor),
       toolbarBorderWidth:    u.toolbarBorderWidth    ?? DEFAULT_CONFIG.toolbarBorderWidth,
       toolbarInnerGlowSize:  u.toolbarInnerGlowSize  ?? DEFAULT_CONFIG.toolbarInnerGlowSize,
       toolbarInnerGlowAlpha: u.toolbarInnerGlowAlpha ?? DEFAULT_CONFIG.toolbarInnerGlowAlpha,
@@ -495,6 +590,8 @@ export class HighlightPaneSettingsComponent implements OnInit {
       toolbarOuterGlowAlpha: u.toolbarOuterGlowAlpha ?? DEFAULT_CONFIG.toolbarOuterGlowAlpha,
       highlightToolbar:      u.highlightToolbar      ?? DEFAULT_CONFIG.highlightToolbar,
       syncActiveToolbar:     u.syncActiveToolbar     ?? DEFAULT_CONFIG.syncActiveToolbar,
+      dynamicBorderColor:    isDynamic,
+      themeColorIndex:       colorIndex,
       paneMargin:            u.paneMargin            ?? DEFAULT_CONFIG.paneMargin,
       paneRadius:            u.paneRadius            ?? DEFAULT_CONFIG.paneRadius,
     }

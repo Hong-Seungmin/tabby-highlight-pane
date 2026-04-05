@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core'
 import { Subscription } from 'rxjs'
-import { ConfigService } from 'tabby-core'
+import { ConfigService, ThemesService } from 'tabby-core'
 import { TerminalDecorator, BaseTerminalTabComponent } from 'tabby-terminal'
 import { DEFAULT_CONFIG } from './config'
 import { generateCSS } from './style-generator'
 import { FocusMonitor } from './focus-monitor'
+import { getActiveThemeColor } from './theme-utils'
 
 /**
  * HighlightPaneDecorator: 탭 열림/닫힘 시 CSS 업데이트를 담당합니다.
@@ -18,6 +19,7 @@ export class HighlightPaneDecorator extends TerminalDecorator {
   constructor (
     private configService: ConfigService,
     private focusMonitor: FocusMonitor,
+    private themesService: ThemesService,
   ) {
     super()
   }
@@ -56,7 +58,17 @@ export class HighlightPaneDecorator extends TerminalDecorator {
       document.head.appendChild(el)
     }
     const userConfig = this.configService.store?.highlightPane ?? {}
-    const config = Object.assign({}, DEFAULT_CONFIG, userConfig)
+    const colorIndex = userConfig.themeColorIndex ?? DEFAULT_CONFIG.themeColorIndex
+    const currentThemeName = this.themesService.findCurrentTheme()?.name ?? ''
+    const themeColor = getActiveThemeColor(this.configService.store, currentThemeName, colorIndex)
+    const isDynamic = userConfig.dynamicBorderColor !== false
+    const config = Object.assign(
+      {},
+      DEFAULT_CONFIG,
+      { borderColor: themeColor, toolbarBorderColor: themeColor },
+      userConfig,
+      isDynamic ? { borderColor: themeColor, toolbarBorderColor: themeColor } : {},
+    )
     el.textContent = generateCSS(config)
   }
 }

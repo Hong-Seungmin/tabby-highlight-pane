@@ -31,6 +31,11 @@ export interface HighlightConfig {
   // 동기화 — 활성구역 ↔ 툴바 공통 설정 링크
   syncActiveToolbar: boolean
 
+  // 색상 모드 — true: 테마 색상표 N번을 자동으로 사용 (다크/라이트 분기)
+  //              false: borderColor / toolbarBorderColor 를 직접 지정
+  dynamicBorderColor: boolean
+  themeColorIndex: number    // 자동 적용 시 사용할 색상 번호 (1-15, 기본값 4)
+
   // 레이아웃 (2개)
   paneMargin: number   // split-tab 주변 여백 (px)
   paneRadius: number   // pane 모서리 둥글기 (px)
@@ -68,6 +73,10 @@ export const DEFAULT_CONFIG: HighlightConfig = {
 
   // 동기화 — 기본값 ON (활성구역 색상 기본값과 툴바 색상 기본값이 동일)
   syncActiveToolbar: true,
+
+  // 색상 모드 — 기본값 ON: 테마 색상표 4번 색을 자동 적용
+  dynamicBorderColor: true,
+  themeColorIndex: 4,      // 기본값: 4번 (ANSI blue 계열)
 
   // 레이아웃
   paneMargin: 3,
