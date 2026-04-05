@@ -27,6 +27,9 @@ export function generateCSS(config: HighlightConfig): string {
   const outerGlow = `rgba(${r}, ${g}, ${b}, ${config.outerGlowAlpha})`
   const toolbarBase = `rgba(${tr}, ${tg}, ${tb}, 0.1)`
   const bw = config.toolbarBorderWidth
+  // 툴바 글로우 (활성구역과 동일하거나 독립 설정 가능)
+  const toolbarInnerGlow = `rgba(${tr}, ${tg}, ${tb}, ${config.toolbarInnerGlowAlpha})`
+  const toolbarOuterGlow = `rgba(${tr}, ${tg}, ${tb}, ${config.toolbarOuterGlowAlpha})`
 
   return `
 /* [highlight-pane] split-tab 여백 */
@@ -70,7 +73,9 @@ split-tab > .focused.child terminal-toolbar {
   box-shadow:
     inset 0 ${bw}px 0 0 rgba(${tr}, ${tg}, ${tb}, 1),
     inset ${bw}px 0 0 0 rgba(${tr}, ${tg}, ${tb}, 1),
-    inset -${bw}px 0 0 0 rgba(${tr}, ${tg}, ${tb}, 1) !important;
+    inset -${bw}px 0 0 0 rgba(${tr}, ${tg}, ${tb}, 1),
+    inset 0 0 ${config.toolbarInnerGlowSize}px ${toolbarInnerGlow},
+    0 0 ${config.toolbarOuterGlowSize}px ${toolbarOuterGlow} !important;
   transition: all ${config.transition}ms ease-in-out;
 }` : ''}
 `.trim()

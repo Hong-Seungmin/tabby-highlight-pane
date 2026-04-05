@@ -66,64 +66,110 @@ import { DEFAULT_CONFIG, HighlightConfig } from '../config'
           활성 구역
         </h4>
 
+        <!-- 테두리 색상 (공통 — 툴바와 링크 가능) -->
         <div class="form-line">
-          <div class="header"><div class="title">테두리 색상</div></div>
+          <div class="header">
+            <div class="title">
+              테두리 색상
+              <i *ngIf="config.syncActiveToolbar" class="fas fa-link ms-1"
+                style="color:#85A4AE; font-size:0.75em" title="툴바와 동기화됨"></i>
+            </div>
+          </div>
           <div class="d-flex align-items-center gap-2">
             <input type="color" class="form-control form-control-color"
               style="width:44px; height:32px; padding:2px; cursor:pointer"
-              [(ngModel)]="config.borderColor" (ngModelChange)="save()">
+              [(ngModel)]="config.borderColor"
+              (ngModelChange)="onActivePaneCommon('borderColor', 'toolbarBorderColor', $event)">
             <span class="text-muted font-monospace">{{ config.borderColor }}</span>
           </div>
         </div>
 
+        <!-- 테두리 두께 (공통 — 툴바와 링크 가능) -->
         <div class="form-line">
-          <div class="header"><div class="title">테두리 두께 (px)</div></div>
+          <div class="header">
+            <div class="title">
+              테두리 두께 (px)
+              <i *ngIf="config.syncActiveToolbar" class="fas fa-link ms-1"
+                style="color:#85A4AE; font-size:0.75em" title="툴바와 동기화됨"></i>
+            </div>
+          </div>
           <div class="d-flex align-items-center gap-2">
             <input type="range" class="form-range" min="0" max="5" step="1"
               style="width:120px"
-              [(ngModel)]="config.borderWidth" (ngModelChange)="save()">
+              [(ngModel)]="config.borderWidth"
+              (ngModelChange)="onActivePaneCommon('borderWidth', 'toolbarBorderWidth', $event)">
             <span class="text-muted">{{ config.borderWidth }}px</span>
           </div>
         </div>
 
+        <!-- 내부 글로우 크기 (공통 — 툴바와 링크 가능) -->
         <div class="form-line">
           <div class="header">
-            <div class="title">내부 글로우 크기 (px)</div>
+            <div class="title">
+              내부 글로우 크기 (px)
+              <i *ngIf="config.syncActiveToolbar" class="fas fa-link ms-1"
+                style="color:#85A4AE; font-size:0.75em" title="툴바와 동기화됨"></i>
+            </div>
           </div>
           <div class="d-flex align-items-center gap-2">
             <input type="range" class="form-range" min="0" max="30" step="1"
               style="width:120px"
-              [(ngModel)]="config.innerGlowSize" (ngModelChange)="save()">
+              [(ngModel)]="config.innerGlowSize"
+              (ngModelChange)="onActivePaneCommon('innerGlowSize', 'toolbarInnerGlowSize', $event)">
             <span class="text-muted">{{ config.innerGlowSize }}px</span>
           </div>
         </div>
 
+        <!-- 내부 글로우 투명도 (공통 — 툴바와 링크 가능) -->
         <div class="form-line">
-          <div class="header"><div class="title">내부 글로우 투명도</div></div>
+          <div class="header">
+            <div class="title">
+              내부 글로우 투명도
+              <i *ngIf="config.syncActiveToolbar" class="fas fa-link ms-1"
+                style="color:#85A4AE; font-size:0.75em" title="툴바와 동기화됨"></i>
+            </div>
+          </div>
           <div class="d-flex align-items-center gap-2">
             <input type="range" class="form-range" min="0" max="1" step="0.05"
               style="width:120px"
-              [(ngModel)]="config.innerGlowAlpha" (ngModelChange)="save()">
+              [(ngModel)]="config.innerGlowAlpha"
+              (ngModelChange)="onActivePaneCommon('innerGlowAlpha', 'toolbarInnerGlowAlpha', $event)">
             <span class="text-muted">{{ config.innerGlowAlpha | number:'1.0-2' }}</span>
           </div>
         </div>
 
+        <!-- 외부 글로우 크기 (공통 — 툴바와 링크 가능) -->
         <div class="form-line">
-          <div class="header"><div class="title">외부 글로우 크기 (px)</div></div>
+          <div class="header">
+            <div class="title">
+              외부 글로우 크기 (px)
+              <i *ngIf="config.syncActiveToolbar" class="fas fa-link ms-1"
+                style="color:#85A4AE; font-size:0.75em" title="툴바와 동기화됨"></i>
+            </div>
+          </div>
           <div class="d-flex align-items-center gap-2">
             <input type="range" class="form-range" min="0" max="50" step="1"
               style="width:120px"
-              [(ngModel)]="config.outerGlowSize" (ngModelChange)="save()">
+              [(ngModel)]="config.outerGlowSize"
+              (ngModelChange)="onActivePaneCommon('outerGlowSize', 'toolbarOuterGlowSize', $event)">
             <span class="text-muted">{{ config.outerGlowSize }}px</span>
           </div>
         </div>
 
+        <!-- 외부 글로우 투명도 (공통 — 툴바와 링크 가능) -->
         <div class="form-line">
-          <div class="header"><div class="title">외부 글로우 투명도</div></div>
+          <div class="header">
+            <div class="title">
+              외부 글로우 투명도
+              <i *ngIf="config.syncActiveToolbar" class="fas fa-link ms-1"
+                style="color:#85A4AE; font-size:0.75em" title="툴바와 동기화됨"></i>
+            </div>
+          </div>
           <div class="d-flex align-items-center gap-2">
             <input type="range" class="form-range" min="0" max="1" step="0.05"
               style="width:120px"
-              [(ngModel)]="config.outerGlowAlpha" (ngModelChange)="save()">
+              [(ngModel)]="config.outerGlowAlpha"
+              (ngModelChange)="onActivePaneCommon('outerGlowAlpha', 'toolbarOuterGlowAlpha', $event)">
             <span class="text-muted">{{ config.outerGlowAlpha | number:'1.0-2' }}</span>
           </div>
         </div>
@@ -173,8 +219,24 @@ import { DEFAULT_CONFIG, HighlightConfig } from '../config'
           </div>
         </div>
 
+        <!-- ────── 동기화 토글 (활성 구역 ↔ 툴바) ────── -->
+        <div class="d-flex align-items-center gap-3 mt-4" style="user-select:none">
+          <div style="flex:1; height:1px; background:rgba(133,164,174,0.25)"></div>
+          <button class="btn btn-sm px-3 py-1"
+            style="border-radius:20px; font-size:0.8rem; transition:all 200ms"
+            [style.color]="config.syncActiveToolbar ? '#85A4AE' : '#888'"
+            [style.border]="config.syncActiveToolbar ? '1px solid #85A4AE' : '1px solid #555'"
+            [style.background]="config.syncActiveToolbar ? 'rgba(133,164,174,0.12)' : 'transparent'"
+            (click)="toggleSync()"
+            [title]="config.syncActiveToolbar ? '클릭하여 독립 설정으로 전환' : '클릭하여 활성구역과 툴바를 동기화'">
+            <i class="me-1" [ngClass]="config.syncActiveToolbar ? 'fas fa-link' : 'fas fa-unlink'"></i>
+            {{ config.syncActiveToolbar ? '활성구역 ↔ 툴바 동기화 ON' : '활성구역 ↔ 툴바 독립 설정' }}
+          </button>
+          <div style="flex:1; height:1px; background:rgba(133,164,174,0.25)"></div>
+        </div>
+
         <!-- ────── 툴바 ────── -->
-        <h4 class="mt-4 mb-3" style="color:#85A4AE; font-size:1rem; text-transform:uppercase; letter-spacing:.05em">
+        <h4 class="mt-3 mb-3" style="color:#85A4AE; font-size:1rem; text-transform:uppercase; letter-spacing:.05em">
           툴바
         </h4>
 
@@ -191,26 +253,134 @@ import { DEFAULT_CONFIG, HighlightConfig } from '../config'
         </div>
 
         <ng-container *ngIf="config.highlightToolbar">
+
+          <!-- 툴바 테두리 색상 (공통 — 활성구역과 링크 가능) -->
           <div class="form-line">
-            <div class="header"><div class="title">툴바 테두리 색상</div></div>
+            <div class="header">
+              <div class="title">
+                테두리 색상
+                <i *ngIf="config.syncActiveToolbar" class="fas fa-link ms-1"
+                  style="color:#85A4AE; font-size:0.75em" title="활성 구역과 동기화됨"></i>
+              </div>
+              <div *ngIf="config.syncActiveToolbar" class="description" style="font-size:0.78rem; color:#85A4AE">
+                활성 구역과 동기화됨
+              </div>
+            </div>
             <div class="d-flex align-items-center gap-2">
               <input type="color" class="form-control form-control-color"
                 style="width:44px; height:32px; padding:2px; cursor:pointer"
-                [(ngModel)]="config.toolbarBorderColor" (ngModelChange)="save()">
+                [(ngModel)]="config.toolbarBorderColor"
+                (ngModelChange)="onToolbarCommon('borderColor', 'toolbarBorderColor', $event)">
               <span class="text-muted font-monospace">{{ config.toolbarBorderColor }}</span>
             </div>
           </div>
 
+          <!-- 툴바 테두리 두께 (공통 — 활성구역과 링크 가능) -->
           <div class="form-line">
-            <div class="header"><div class="title">툴바 테두리 두께 (px)</div></div>
+            <div class="header">
+              <div class="title">
+                테두리 두께 (px)
+                <i *ngIf="config.syncActiveToolbar" class="fas fa-link ms-1"
+                  style="color:#85A4AE; font-size:0.75em" title="활성 구역과 동기화됨"></i>
+              </div>
+              <div *ngIf="config.syncActiveToolbar" class="description" style="font-size:0.78rem; color:#85A4AE">
+                활성 구역과 동기화됨
+              </div>
+            </div>
             <div class="d-flex align-items-center gap-2">
               <input type="range" class="form-range" min="0" max="5" step="1"
                 style="width:120px"
-                [(ngModel)]="config.toolbarBorderWidth" (ngModelChange)="save()">
+                [(ngModel)]="config.toolbarBorderWidth"
+                (ngModelChange)="onToolbarCommon('borderWidth', 'toolbarBorderWidth', $event)">
               <span class="text-muted">{{ config.toolbarBorderWidth }}px</span>
             </div>
           </div>
 
+          <!-- 툴바 내부 글로우 크기 (공통 — 활성구역과 링크 가능) -->
+          <div class="form-line">
+            <div class="header">
+              <div class="title">
+                내부 글로우 크기 (px)
+                <i *ngIf="config.syncActiveToolbar" class="fas fa-link ms-1"
+                  style="color:#85A4AE; font-size:0.75em" title="활성 구역과 동기화됨"></i>
+              </div>
+              <div *ngIf="config.syncActiveToolbar" class="description" style="font-size:0.78rem; color:#85A4AE">
+                활성 구역과 동기화됨
+              </div>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+              <input type="range" class="form-range" min="0" max="30" step="1"
+                style="width:120px"
+                [(ngModel)]="config.toolbarInnerGlowSize"
+                (ngModelChange)="onToolbarCommon('innerGlowSize', 'toolbarInnerGlowSize', $event)">
+              <span class="text-muted">{{ config.toolbarInnerGlowSize }}px</span>
+            </div>
+          </div>
+
+          <!-- 툴바 내부 글로우 투명도 (공통 — 활성구역과 링크 가능) -->
+          <div class="form-line">
+            <div class="header">
+              <div class="title">
+                내부 글로우 투명도
+                <i *ngIf="config.syncActiveToolbar" class="fas fa-link ms-1"
+                  style="color:#85A4AE; font-size:0.75em" title="활성 구역과 동기화됨"></i>
+              </div>
+              <div *ngIf="config.syncActiveToolbar" class="description" style="font-size:0.78rem; color:#85A4AE">
+                활성 구역과 동기화됨
+              </div>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+              <input type="range" class="form-range" min="0" max="1" step="0.05"
+                style="width:120px"
+                [(ngModel)]="config.toolbarInnerGlowAlpha"
+                (ngModelChange)="onToolbarCommon('innerGlowAlpha', 'toolbarInnerGlowAlpha', $event)">
+              <span class="text-muted">{{ config.toolbarInnerGlowAlpha | number:'1.0-2' }}</span>
+            </div>
+          </div>
+
+          <!-- 툴바 외부 글로우 크기 (공통 — 활성구역과 링크 가능) -->
+          <div class="form-line">
+            <div class="header">
+              <div class="title">
+                외부 글로우 크기 (px)
+                <i *ngIf="config.syncActiveToolbar" class="fas fa-link ms-1"
+                  style="color:#85A4AE; font-size:0.75em" title="활성 구역과 동기화됨"></i>
+              </div>
+              <div *ngIf="config.syncActiveToolbar" class="description" style="font-size:0.78rem; color:#85A4AE">
+                활성 구역과 동기화됨
+              </div>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+              <input type="range" class="form-range" min="0" max="50" step="1"
+                style="width:120px"
+                [(ngModel)]="config.toolbarOuterGlowSize"
+                (ngModelChange)="onToolbarCommon('outerGlowSize', 'toolbarOuterGlowSize', $event)">
+              <span class="text-muted">{{ config.toolbarOuterGlowSize }}px</span>
+            </div>
+          </div>
+
+          <!-- 툴바 외부 글로우 투명도 (공통 — 활성구역과 링크 가능) -->
+          <div class="form-line">
+            <div class="header">
+              <div class="title">
+                외부 글로우 투명도
+                <i *ngIf="config.syncActiveToolbar" class="fas fa-link ms-1"
+                  style="color:#85A4AE; font-size:0.75em" title="활성 구역과 동기화됨"></i>
+              </div>
+              <div *ngIf="config.syncActiveToolbar" class="description" style="font-size:0.78rem; color:#85A4AE">
+                활성 구역과 동기화됨
+              </div>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+              <input type="range" class="form-range" min="0" max="1" step="0.05"
+                style="width:120px"
+                [(ngModel)]="config.toolbarOuterGlowAlpha"
+                (ngModelChange)="onToolbarCommon('outerGlowAlpha', 'toolbarOuterGlowAlpha', $event)">
+              <span class="text-muted">{{ config.toolbarOuterGlowAlpha | number:'1.0-2' }}</span>
+            </div>
+          </div>
+
+          <!-- 툴바 밝기 (툴바 전용) -->
           <div class="form-line">
             <div class="header">
               <div class="title">툴바 밝기</div>
@@ -223,6 +393,7 @@ import { DEFAULT_CONFIG, HighlightConfig } from '../config'
               <span class="text-muted">{{ config.toolbarBrightness | number:'1.0-2' }}x</span>
             </div>
           </div>
+
         </ng-container>
 
         <!-- 초기화 버튼 -->
@@ -258,27 +429,74 @@ export class HighlightPaneSettingsComponent implements OnInit {
     this.save()
   }
 
+  /**
+   * 활성 구역의 공통 설정 변경 핸들러
+   * 동기화 ON 시 해당 툴바 설정도 동일하게 적용
+   */
+  onActivePaneCommon (activeKey: keyof HighlightConfig, toolbarKey: keyof HighlightConfig, value: any): void {
+    // ngModel이 activeKey 값을 이미 설정한 상태로 호출됨
+    if (this.config.syncActiveToolbar) {
+      (this.config as any)[toolbarKey] = value
+    }
+    this.save()
+  }
+
+  /**
+   * 툴바의 공통 설정 변경 핸들러
+   * 동기화 ON 시 해당 활성 구역 설정도 동일하게 적용
+   */
+  onToolbarCommon (activeKey: keyof HighlightConfig, toolbarKey: keyof HighlightConfig, value: any): void {
+    // ngModel이 toolbarKey 값을 이미 설정한 상태로 호출됨
+    if (this.config.syncActiveToolbar) {
+      (this.config as any)[activeKey] = value
+    }
+    this.save()
+  }
+
+  /**
+   * 동기화 토글
+   * ON으로 전환 시 활성 구역 값을 기준으로 툴바 공통 설정 일괄 동기화
+   */
+  toggleSync (): void {
+    this.config.syncActiveToolbar = !this.config.syncActiveToolbar
+    if (this.config.syncActiveToolbar) {
+      // 활성 구역 값을 기준으로 툴바 공통 설정 동기화
+      this.config.toolbarBorderColor   = this.config.borderColor
+      this.config.toolbarBorderWidth   = this.config.borderWidth
+      this.config.toolbarInnerGlowSize  = this.config.innerGlowSize
+      this.config.toolbarInnerGlowAlpha = this.config.innerGlowAlpha
+      this.config.toolbarOuterGlowSize  = this.config.outerGlowSize
+      this.config.toolbarOuterGlowAlpha = this.config.outerGlowAlpha
+    }
+    this.save()
+  }
+
   private loadConfig (): HighlightConfig {
     const u = this.configService.store?.highlightPane ?? {}
     return {
-      enabled:            u.enabled            ?? DEFAULT_CONFIG.enabled,
-      borderColor:        u.borderColor        ?? DEFAULT_CONFIG.borderColor,
-      borderWidth:        u.borderWidth        ?? DEFAULT_CONFIG.borderWidth,
-      borderStyle:        u.borderStyle        ?? DEFAULT_CONFIG.borderStyle,
-      innerGlowSize:      u.innerGlowSize      ?? DEFAULT_CONFIG.innerGlowSize,
-      innerGlowAlpha:     u.innerGlowAlpha     ?? DEFAULT_CONFIG.innerGlowAlpha,
-      outerGlowSize:      u.outerGlowSize      ?? DEFAULT_CONFIG.outerGlowSize,
-      outerGlowAlpha:     u.outerGlowAlpha     ?? DEFAULT_CONFIG.outerGlowAlpha,
-      opacity:            u.opacity            ?? DEFAULT_CONFIG.opacity,
-      transition:         u.transition         ?? DEFAULT_CONFIG.transition,
-      inactiveOpacity:    u.inactiveOpacity    ?? DEFAULT_CONFIG.inactiveOpacity,
-      inactiveTransition: u.inactiveTransition ?? DEFAULT_CONFIG.inactiveTransition,
-      toolbarBrightness:  u.toolbarBrightness  ?? DEFAULT_CONFIG.toolbarBrightness,
-      toolbarBorderColor: u.toolbarBorderColor ?? DEFAULT_CONFIG.toolbarBorderColor,
-      toolbarBorderWidth: u.toolbarBorderWidth ?? DEFAULT_CONFIG.toolbarBorderWidth,
-      highlightToolbar:   u.highlightToolbar   ?? DEFAULT_CONFIG.highlightToolbar,
-      paneMargin:         u.paneMargin         ?? DEFAULT_CONFIG.paneMargin,
-      paneRadius:         u.paneRadius         ?? DEFAULT_CONFIG.paneRadius,
+      enabled:               u.enabled               ?? DEFAULT_CONFIG.enabled,
+      borderColor:           u.borderColor           ?? DEFAULT_CONFIG.borderColor,
+      borderWidth:           u.borderWidth           ?? DEFAULT_CONFIG.borderWidth,
+      borderStyle:           u.borderStyle           ?? DEFAULT_CONFIG.borderStyle,
+      innerGlowSize:         u.innerGlowSize         ?? DEFAULT_CONFIG.innerGlowSize,
+      innerGlowAlpha:        u.innerGlowAlpha        ?? DEFAULT_CONFIG.innerGlowAlpha,
+      outerGlowSize:         u.outerGlowSize         ?? DEFAULT_CONFIG.outerGlowSize,
+      outerGlowAlpha:        u.outerGlowAlpha        ?? DEFAULT_CONFIG.outerGlowAlpha,
+      opacity:               u.opacity               ?? DEFAULT_CONFIG.opacity,
+      transition:            u.transition            ?? DEFAULT_CONFIG.transition,
+      inactiveOpacity:       u.inactiveOpacity       ?? DEFAULT_CONFIG.inactiveOpacity,
+      inactiveTransition:    u.inactiveTransition    ?? DEFAULT_CONFIG.inactiveTransition,
+      toolbarBrightness:     u.toolbarBrightness     ?? DEFAULT_CONFIG.toolbarBrightness,
+      toolbarBorderColor:    u.toolbarBorderColor    ?? DEFAULT_CONFIG.toolbarBorderColor,
+      toolbarBorderWidth:    u.toolbarBorderWidth    ?? DEFAULT_CONFIG.toolbarBorderWidth,
+      toolbarInnerGlowSize:  u.toolbarInnerGlowSize  ?? DEFAULT_CONFIG.toolbarInnerGlowSize,
+      toolbarInnerGlowAlpha: u.toolbarInnerGlowAlpha ?? DEFAULT_CONFIG.toolbarInnerGlowAlpha,
+      toolbarOuterGlowSize:  u.toolbarOuterGlowSize  ?? DEFAULT_CONFIG.toolbarOuterGlowSize,
+      toolbarOuterGlowAlpha: u.toolbarOuterGlowAlpha ?? DEFAULT_CONFIG.toolbarOuterGlowAlpha,
+      highlightToolbar:      u.highlightToolbar      ?? DEFAULT_CONFIG.highlightToolbar,
+      syncActiveToolbar:     u.syncActiveToolbar     ?? DEFAULT_CONFIG.syncActiveToolbar,
+      paneMargin:            u.paneMargin            ?? DEFAULT_CONFIG.paneMargin,
+      paneRadius:            u.paneRadius            ?? DEFAULT_CONFIG.paneRadius,
     }
   }
 }
