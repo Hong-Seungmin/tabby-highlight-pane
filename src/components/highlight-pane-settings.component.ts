@@ -6,6 +6,10 @@ import { getActiveThemeColor } from '../theme-utils'
 /**
  * Highlight Pane 설정 화면 컴포넌트
  * Tabby 설정 → "Highlight Pane" 메뉴에서 접근합니다.
+ *
+ * 다국어 지원: @ngx-translate/core TranslateService 기반
+ *  - PluginI18nService.init() 에서 번역 등록 및 언어 활성화
+ *  - 템플릿에서 | translate 파이프 사용
  */
 @Component({
   selector: 'highlight-pane-settings',
@@ -16,11 +20,11 @@ import { getActiveThemeColor } from '../theme-utils'
         Highlight Pane
       </h3>
 
-      <!-- 활성화 토글 -->
+      <!-- Enable toggle -->
       <div class="form-line">
         <div class="header">
-          <div class="title">활성화</div>
-          <div class="description">Split Pane 하이라이팅 기능을 켜거나 끕니다</div>
+          <div class="title">{{ 'highlightPane.enable' | translate }}</div>
+          <div class="description">{{ 'highlightPane.enableDesc' | translate }}</div>
         </div>
         <div class="form-check form-switch">
           <input class="form-check-input" type="checkbox" id="hp-enabled"
@@ -31,15 +35,15 @@ import { getActiveThemeColor } from '../theme-utils'
 
       <ng-container *ngIf="config.enabled">
 
-        <!-- ────── 레이아웃 ────── -->
+        <!-- ────── Layout ────── -->
         <h4 class="mt-4 mb-3" style="color:#85A4AE; font-size:1rem; text-transform:uppercase; letter-spacing:.05em">
-          레이아웃
+          {{ 'highlightPane.layout' | translate }}
         </h4>
 
         <div class="form-line">
           <div class="header">
-            <div class="title">Pane 여백 (px)</div>
-            <div class="description">split-tab 주변 여백</div>
+            <div class="title">{{ 'highlightPane.paneMargin' | translate }}</div>
+            <div class="description">{{ 'highlightPane.paneMarginDesc' | translate }}</div>
           </div>
           <div class="d-flex align-items-center gap-2">
             <input type="range" class="form-range" min="0" max="10" step="1"
@@ -51,8 +55,8 @@ import { getActiveThemeColor } from '../theme-utils'
 
         <div class="form-line">
           <div class="header">
-            <div class="title">모서리 둥글기 (px)</div>
-            <div class="description">Pane 테두리 border-radius</div>
+            <div class="title">{{ 'highlightPane.paneRadius' | translate }}</div>
+            <div class="description">{{ 'highlightPane.paneRadiusDesc' | translate }}</div>
           </div>
           <div class="d-flex align-items-center gap-2">
             <input type="range" class="form-range" min="0" max="20" step="1"
@@ -62,37 +66,37 @@ import { getActiveThemeColor } from '../theme-utils'
           </div>
         </div>
 
-        <!-- ────── 활성 구역 ────── -->
+        <!-- ────── Active Pane ────── -->
         <h4 class="mt-4 mb-3" style="color:#85A4AE; font-size:1rem; text-transform:uppercase; letter-spacing:.05em">
-          활성 구역
+          {{ 'highlightPane.activePane' | translate }}
         </h4>
 
-        <!-- 테마 색상 자동 적용 -->
+        <!-- Auto Theme Color -->
         <div class="form-line">
           <div class="header">
-            <div class="title">테마 색상 자동 적용</div>
-            <div class="description">
-              다크/라이트 모드에 따라 터미널 색상표의 지정 번호 색상을 테두리·글로우에 자동 적용합니다.
-              (Standard 테마 = 다크 색상표, Paper 테마 = 라이트 색상표)
-            </div>
+            <div class="title">{{ 'highlightPane.autoThemeColor' | translate }}</div>
+            <div class="description">{{ 'highlightPane.autoThemeColorDesc' | translate }}</div>
           </div>
           <div class="d-flex align-items-center gap-2">
-            <!-- ON/OFF 토글 -->
+            <!-- ON/OFF toggle -->
             <div class="form-check form-switch mb-0">
               <input class="form-check-input" type="checkbox" id="hp-dynamic-color"
                 [(ngModel)]="config.dynamicBorderColor" (ngModelChange)="onDynamicColorChange($event)">
               <label class="form-check-label" for="hp-dynamic-color"></label>
             </div>
-            <!-- 색상 번호 선택 (동적 모드 ON 시에만 표시) -->
+            <!-- Color index (visible only when dynamic mode is ON) -->
             <ng-container *ngIf="config.dynamicBorderColor">
-              <span class="text-muted" style="font-size:0.85rem">색상</span>
+              <span class="text-muted" style="font-size:0.85rem">{{ 'highlightPane.colorLabel' | translate }}</span>
               <input type="number" class="form-control form-control-sm"
                 style="width:58px; text-align:center; padding:2px 6px"
                 min="1" max="15" step="1"
                 [(ngModel)]="config.themeColorIndex"
                 (ngModelChange)="onThemeColorIndexChange($event)">
-              <span class="text-muted" style="font-size:0.85rem">번</span>
-              <!-- 현재 선택된 테마 색상 미리보기 -->
+              <!-- colorIndex: '번'(ko) or ''(en) — only renders when non-empty -->
+              <span *ngIf="('highlightPane.colorIndex' | translate)" class="text-muted" style="font-size:0.85rem">
+                {{ 'highlightPane.colorIndex' | translate }}
+              </span>
+              <!-- Theme color preview -->
               <div [style.background]="getThemeColor()"
                 style="width:22px; height:22px; border-radius:4px; border:1px solid rgba(128,128,128,0.35); flex-shrink:0"
                 [title]="getThemeColor()"></div>
@@ -100,13 +104,14 @@ import { getActiveThemeColor } from '../theme-utils'
           </div>
         </div>
 
-        <!-- 테두리 색상 (공통 — 툴바와 링크 가능) -->
+        <!-- Border Color (common — linkable with toolbar) -->
         <div class="form-line">
           <div class="header">
             <div class="title">
-              테두리 색상
+              {{ 'highlightPane.borderColor' | translate }}
               <i *ngIf="config.syncActiveToolbar" class="fas fa-link ms-1"
-                style="color:#85A4AE; font-size:0.75em" title="툴바와 동기화됨"></i>
+                style="color:#85A4AE; font-size:0.75em"
+                [title]="'highlightPane.syncedWithToolbar' | translate"></i>
             </div>
           </div>
           <div class="d-flex align-items-center gap-2">
@@ -119,17 +124,20 @@ import { getActiveThemeColor } from '../theme-utils'
               (ngModelChange)="onActivePaneCommon('borderColor', 'toolbarBorderColor', $event)">
             <span class="text-muted font-monospace">{{ config.borderColor }}</span>
             <span *ngIf="config.dynamicBorderColor"
-              style="font-size:0.72rem; padding:1px 7px; border-radius:10px; background:rgba(133,164,174,0.15); color:#85A4AE">자동</span>
+              style="font-size:0.72rem; padding:1px 7px; border-radius:10px; background:rgba(133,164,174,0.15); color:#85A4AE">
+              {{ 'highlightPane.auto' | translate }}
+            </span>
           </div>
         </div>
 
-        <!-- 테두리 두께 (공통 — 툴바와 링크 가능) -->
+        <!-- Border Width (common — linkable with toolbar) -->
         <div class="form-line">
           <div class="header">
             <div class="title">
-              테두리 두께 (px)
+              {{ 'highlightPane.borderWidth' | translate }}
               <i *ngIf="config.syncActiveToolbar" class="fas fa-link ms-1"
-                style="color:#85A4AE; font-size:0.75em" title="툴바와 동기화됨"></i>
+                style="color:#85A4AE; font-size:0.75em"
+                [title]="'highlightPane.syncedWithToolbar' | translate"></i>
             </div>
           </div>
           <div class="d-flex align-items-center gap-2">
@@ -141,13 +149,14 @@ import { getActiveThemeColor } from '../theme-utils'
           </div>
         </div>
 
-        <!-- 내부 글로우 크기 (공통 — 툴바와 링크 가능) -->
+        <!-- Inner Glow Size (common — linkable with toolbar) -->
         <div class="form-line">
           <div class="header">
             <div class="title">
-              내부 글로우 크기 (px)
+              {{ 'highlightPane.innerGlowSize' | translate }}
               <i *ngIf="config.syncActiveToolbar" class="fas fa-link ms-1"
-                style="color:#85A4AE; font-size:0.75em" title="툴바와 동기화됨"></i>
+                style="color:#85A4AE; font-size:0.75em"
+                [title]="'highlightPane.syncedWithToolbar' | translate"></i>
             </div>
           </div>
           <div class="d-flex align-items-center gap-2">
@@ -159,13 +168,14 @@ import { getActiveThemeColor } from '../theme-utils'
           </div>
         </div>
 
-        <!-- 내부 글로우 투명도 (공통 — 툴바와 링크 가능) -->
+        <!-- Inner Glow Opacity (common — linkable with toolbar) -->
         <div class="form-line">
           <div class="header">
             <div class="title">
-              내부 글로우 투명도
+              {{ 'highlightPane.innerGlowOpacity' | translate }}
               <i *ngIf="config.syncActiveToolbar" class="fas fa-link ms-1"
-                style="color:#85A4AE; font-size:0.75em" title="툴바와 동기화됨"></i>
+                style="color:#85A4AE; font-size:0.75em"
+                [title]="'highlightPane.syncedWithToolbar' | translate"></i>
             </div>
           </div>
           <div class="d-flex align-items-center gap-2">
@@ -177,13 +187,14 @@ import { getActiveThemeColor } from '../theme-utils'
           </div>
         </div>
 
-        <!-- 외부 글로우 크기 (공통 — 툴바와 링크 가능) -->
+        <!-- Outer Glow Size (common — linkable with toolbar) -->
         <div class="form-line">
           <div class="header">
             <div class="title">
-              외부 글로우 크기 (px)
+              {{ 'highlightPane.outerGlowSize' | translate }}
               <i *ngIf="config.syncActiveToolbar" class="fas fa-link ms-1"
-                style="color:#85A4AE; font-size:0.75em" title="툴바와 동기화됨"></i>
+                style="color:#85A4AE; font-size:0.75em"
+                [title]="'highlightPane.syncedWithToolbar' | translate"></i>
             </div>
           </div>
           <div class="d-flex align-items-center gap-2">
@@ -195,13 +206,14 @@ import { getActiveThemeColor } from '../theme-utils'
           </div>
         </div>
 
-        <!-- 외부 글로우 투명도 (공통 — 툴바와 링크 가능) -->
+        <!-- Outer Glow Opacity (common — linkable with toolbar) -->
         <div class="form-line">
           <div class="header">
             <div class="title">
-              외부 글로우 투명도
+              {{ 'highlightPane.outerGlowOpacity' | translate }}
               <i *ngIf="config.syncActiveToolbar" class="fas fa-link ms-1"
-                style="color:#85A4AE; font-size:0.75em" title="툴바와 동기화됨"></i>
+                style="color:#85A4AE; font-size:0.75em"
+                [title]="'highlightPane.syncedWithToolbar' | translate"></i>
             </div>
           </div>
           <div class="d-flex align-items-center gap-2">
@@ -214,7 +226,7 @@ import { getActiveThemeColor } from '../theme-utils'
         </div>
 
         <div class="form-line">
-          <div class="header"><div class="title">활성 구역 불투명도</div></div>
+          <div class="header"><div class="title">{{ 'highlightPane.activePaneOpacity' | translate }}</div></div>
           <div class="d-flex align-items-center gap-2">
             <input type="range" class="form-range" min="0.5" max="1" step="0.05"
               style="width:120px"
@@ -224,7 +236,7 @@ import { getActiveThemeColor } from '../theme-utils'
         </div>
 
         <div class="form-line">
-          <div class="header"><div class="title">전환 속도 (ms)</div></div>
+          <div class="header"><div class="title">{{ 'highlightPane.transitionSpeed' | translate }}</div></div>
           <div class="d-flex align-items-center gap-2">
             <input type="range" class="form-range" min="0" max="1000" step="50"
               style="width:120px"
@@ -233,13 +245,13 @@ import { getActiveThemeColor } from '../theme-utils'
           </div>
         </div>
 
-        <!-- ────── 비활성 구역 ────── -->
+        <!-- ────── Inactive Pane ────── -->
         <h4 class="mt-4 mb-3" style="color:#85A4AE; font-size:1rem; text-transform:uppercase; letter-spacing:.05em">
-          비활성 구역
+          {{ 'highlightPane.inactivePane' | translate }}
         </h4>
 
         <div class="form-line">
-          <div class="header"><div class="title">비활성 구역 불투명도</div></div>
+          <div class="header"><div class="title">{{ 'highlightPane.inactivePaneOpacity' | translate }}</div></div>
           <div class="d-flex align-items-center gap-2">
             <input type="range" class="form-range" min="0.1" max="1" step="0.05"
               style="width:120px"
@@ -249,7 +261,7 @@ import { getActiveThemeColor } from '../theme-utils'
         </div>
 
         <div class="form-line">
-          <div class="header"><div class="title">비활성 전환 속도 (ms)</div></div>
+          <div class="header"><div class="title">{{ 'highlightPane.inactiveTransition' | translate }}</div></div>
           <div class="d-flex align-items-center gap-2">
             <input type="range" class="form-range" min="0" max="1000" step="50"
               style="width:120px"
@@ -258,7 +270,7 @@ import { getActiveThemeColor } from '../theme-utils'
           </div>
         </div>
 
-        <!-- ────── 동기화 토글 (활성 구역 ↔ 툴바) ────── -->
+        <!-- ────── Sync toggle (Active Pane ↔ Toolbar) ────── -->
         <div class="d-flex align-items-center gap-3 mt-4" style="user-select:none">
           <div style="flex:1; height:1px; background:rgba(133,164,174,0.25)"></div>
           <button class="btn btn-sm px-3 py-1"
@@ -267,22 +279,22 @@ import { getActiveThemeColor } from '../theme-utils'
             [style.border]="config.syncActiveToolbar ? '1px solid #85A4AE' : '1px solid #555'"
             [style.background]="config.syncActiveToolbar ? 'rgba(133,164,174,0.12)' : 'transparent'"
             (click)="toggleSync()"
-            [title]="config.syncActiveToolbar ? '클릭하여 독립 설정으로 전환' : '클릭하여 활성구역과 툴바를 동기화'">
+            [title]="(config.syncActiveToolbar ? 'highlightPane.syncOnTitle' : 'highlightPane.syncOffTitle') | translate">
             <i class="me-1" [ngClass]="config.syncActiveToolbar ? 'fas fa-link' : 'fas fa-unlink'"></i>
-            {{ config.syncActiveToolbar ? '활성구역 ↔ 툴바 동기화 ON' : '활성구역 ↔ 툴바 독립 설정' }}
+            {{ (config.syncActiveToolbar ? 'highlightPane.syncOnLabel' : 'highlightPane.syncOffLabel') | translate }}
           </button>
           <div style="flex:1; height:1px; background:rgba(133,164,174,0.25)"></div>
         </div>
 
-        <!-- ────── 툴바 ────── -->
+        <!-- ────── Toolbar ────── -->
         <h4 class="mt-3 mb-3" style="color:#85A4AE; font-size:1rem; text-transform:uppercase; letter-spacing:.05em">
-          툴바
+          {{ 'highlightPane.toolbar' | translate }}
         </h4>
 
         <div class="form-line">
           <div class="header">
-            <div class="title">툴바 하이라이트</div>
-            <div class="description">활성 구역 툴바를 강조 표시합니다</div>
+            <div class="title">{{ 'highlightPane.toolbarHighlight' | translate }}</div>
+            <div class="description">{{ 'highlightPane.toolbarHighlightDesc' | translate }}</div>
           </div>
           <div class="form-check form-switch">
             <input class="form-check-input" type="checkbox" id="hp-toolbar"
@@ -293,16 +305,17 @@ import { getActiveThemeColor } from '../theme-utils'
 
         <ng-container *ngIf="config.highlightToolbar">
 
-          <!-- 툴바 테두리 색상 (공통 — 활성구역과 링크 가능) -->
+          <!-- Toolbar Border Color (common — linkable with active pane) -->
           <div class="form-line">
             <div class="header">
               <div class="title">
-                테두리 색상
+                {{ 'highlightPane.borderColor' | translate }}
                 <i *ngIf="config.syncActiveToolbar" class="fas fa-link ms-1"
-                  style="color:#85A4AE; font-size:0.75em" title="활성 구역과 동기화됨"></i>
+                  style="color:#85A4AE; font-size:0.75em"
+                  [title]="'highlightPane.syncedWithActivePane' | translate"></i>
               </div>
               <div *ngIf="config.syncActiveToolbar" class="description" style="font-size:0.78rem; color:#85A4AE">
-                활성 구역과 동기화됨
+                {{ 'highlightPane.syncedWithActivePane' | translate }}
               </div>
             </div>
             <div class="d-flex align-items-center gap-2">
@@ -315,20 +328,23 @@ import { getActiveThemeColor } from '../theme-utils'
                 (ngModelChange)="onToolbarCommon('borderColor', 'toolbarBorderColor', $event)">
               <span class="text-muted font-monospace">{{ config.toolbarBorderColor }}</span>
               <span *ngIf="config.dynamicBorderColor"
-                style="font-size:0.72rem; padding:1px 7px; border-radius:10px; background:rgba(133,164,174,0.15); color:#85A4AE">자동</span>
+                style="font-size:0.72rem; padding:1px 7px; border-radius:10px; background:rgba(133,164,174,0.15); color:#85A4AE">
+                {{ 'highlightPane.auto' | translate }}
+              </span>
             </div>
           </div>
 
-          <!-- 툴바 테두리 두께 (공통 — 활성구역과 링크 가능) -->
+          <!-- Toolbar Border Width (common — linkable with active pane) -->
           <div class="form-line">
             <div class="header">
               <div class="title">
-                테두리 두께 (px)
+                {{ 'highlightPane.borderWidth' | translate }}
                 <i *ngIf="config.syncActiveToolbar" class="fas fa-link ms-1"
-                  style="color:#85A4AE; font-size:0.75em" title="활성 구역과 동기화됨"></i>
+                  style="color:#85A4AE; font-size:0.75em"
+                  [title]="'highlightPane.syncedWithActivePane' | translate"></i>
               </div>
               <div *ngIf="config.syncActiveToolbar" class="description" style="font-size:0.78rem; color:#85A4AE">
-                활성 구역과 동기화됨
+                {{ 'highlightPane.syncedWithActivePane' | translate }}
               </div>
             </div>
             <div class="d-flex align-items-center gap-2">
@@ -340,16 +356,17 @@ import { getActiveThemeColor } from '../theme-utils'
             </div>
           </div>
 
-          <!-- 툴바 내부 글로우 크기 (공통 — 활성구역과 링크 가능) -->
+          <!-- Toolbar Inner Glow Size (common — linkable with active pane) -->
           <div class="form-line">
             <div class="header">
               <div class="title">
-                내부 글로우 크기 (px)
+                {{ 'highlightPane.innerGlowSize' | translate }}
                 <i *ngIf="config.syncActiveToolbar" class="fas fa-link ms-1"
-                  style="color:#85A4AE; font-size:0.75em" title="활성 구역과 동기화됨"></i>
+                  style="color:#85A4AE; font-size:0.75em"
+                  [title]="'highlightPane.syncedWithActivePane' | translate"></i>
               </div>
               <div *ngIf="config.syncActiveToolbar" class="description" style="font-size:0.78rem; color:#85A4AE">
-                활성 구역과 동기화됨
+                {{ 'highlightPane.syncedWithActivePane' | translate }}
               </div>
             </div>
             <div class="d-flex align-items-center gap-2">
@@ -361,16 +378,17 @@ import { getActiveThemeColor } from '../theme-utils'
             </div>
           </div>
 
-          <!-- 툴바 내부 글로우 투명도 (공통 — 활성구역과 링크 가능) -->
+          <!-- Toolbar Inner Glow Opacity (common — linkable with active pane) -->
           <div class="form-line">
             <div class="header">
               <div class="title">
-                내부 글로우 투명도
+                {{ 'highlightPane.innerGlowOpacity' | translate }}
                 <i *ngIf="config.syncActiveToolbar" class="fas fa-link ms-1"
-                  style="color:#85A4AE; font-size:0.75em" title="활성 구역과 동기화됨"></i>
+                  style="color:#85A4AE; font-size:0.75em"
+                  [title]="'highlightPane.syncedWithActivePane' | translate"></i>
               </div>
               <div *ngIf="config.syncActiveToolbar" class="description" style="font-size:0.78rem; color:#85A4AE">
-                활성 구역과 동기화됨
+                {{ 'highlightPane.syncedWithActivePane' | translate }}
               </div>
             </div>
             <div class="d-flex align-items-center gap-2">
@@ -382,16 +400,17 @@ import { getActiveThemeColor } from '../theme-utils'
             </div>
           </div>
 
-          <!-- 툴바 외부 글로우 크기 (공통 — 활성구역과 링크 가능) -->
+          <!-- Toolbar Outer Glow Size (common — linkable with active pane) -->
           <div class="form-line">
             <div class="header">
               <div class="title">
-                외부 글로우 크기 (px)
+                {{ 'highlightPane.outerGlowSize' | translate }}
                 <i *ngIf="config.syncActiveToolbar" class="fas fa-link ms-1"
-                  style="color:#85A4AE; font-size:0.75em" title="활성 구역과 동기화됨"></i>
+                  style="color:#85A4AE; font-size:0.75em"
+                  [title]="'highlightPane.syncedWithActivePane' | translate"></i>
               </div>
               <div *ngIf="config.syncActiveToolbar" class="description" style="font-size:0.78rem; color:#85A4AE">
-                활성 구역과 동기화됨
+                {{ 'highlightPane.syncedWithActivePane' | translate }}
               </div>
             </div>
             <div class="d-flex align-items-center gap-2">
@@ -403,16 +422,17 @@ import { getActiveThemeColor } from '../theme-utils'
             </div>
           </div>
 
-          <!-- 툴바 외부 글로우 투명도 (공통 — 활성구역과 링크 가능) -->
+          <!-- Toolbar Outer Glow Opacity (common — linkable with active pane) -->
           <div class="form-line">
             <div class="header">
               <div class="title">
-                외부 글로우 투명도
+                {{ 'highlightPane.outerGlowOpacity' | translate }}
                 <i *ngIf="config.syncActiveToolbar" class="fas fa-link ms-1"
-                  style="color:#85A4AE; font-size:0.75em" title="활성 구역과 동기화됨"></i>
+                  style="color:#85A4AE; font-size:0.75em"
+                  [title]="'highlightPane.syncedWithActivePane' | translate"></i>
               </div>
               <div *ngIf="config.syncActiveToolbar" class="description" style="font-size:0.78rem; color:#85A4AE">
-                활성 구역과 동기화됨
+                {{ 'highlightPane.syncedWithActivePane' | translate }}
               </div>
             </div>
             <div class="d-flex align-items-center gap-2">
@@ -424,11 +444,11 @@ import { getActiveThemeColor } from '../theme-utils'
             </div>
           </div>
 
-          <!-- 툴바 밝기 (툴바 전용) -->
+          <!-- Toolbar Brightness (toolbar only) -->
           <div class="form-line">
             <div class="header">
-              <div class="title">툴바 밝기</div>
-              <div class="description">기존 색상을 유지하며 밝기만 조절합니다</div>
+              <div class="title">{{ 'highlightPane.toolbarBrightness' | translate }}</div>
+              <div class="description">{{ 'highlightPane.toolbarBrightnessDesc' | translate }}</div>
             </div>
             <div class="d-flex align-items-center gap-2">
               <input type="range" class="form-range" min="1" max="2" step="0.05"
@@ -440,10 +460,10 @@ import { getActiveThemeColor } from '../theme-utils'
 
         </ng-container>
 
-        <!-- 초기화 버튼 -->
+        <!-- Reset button -->
         <div class="mt-4">
           <button class="btn btn-secondary btn-sm" (click)="reset()">
-            <i class="fas fa-undo me-1"></i> 기본값으로 초기화
+            <i class="fas fa-undo me-1"></i> {{ 'highlightPane.resetToDefaults' | translate }}
           </button>
         </div>
 
@@ -597,4 +617,3 @@ export class HighlightPaneSettingsComponent implements OnInit {
     }
   }
 }
-

@@ -1,6 +1,7 @@
 import {NgModule} from '@angular/core'
 import {CommonModule} from '@angular/common'
 import {FormsModule} from '@angular/forms'
+import {TranslateModule} from '@ngx-translate/core'
 import {ConfigProvider, ConfigService, ThemesService} from 'tabby-core'
 import {TerminalDecorator} from 'tabby-terminal'
 import {SettingsTabProvider} from 'tabby-settings'
@@ -11,6 +12,7 @@ import {generateCSS} from './style-generator'
 import {HighlightPaneSettingsComponent} from './components/highlight-pane-settings.component'
 import {HighlightPaneSettingsTabProvider} from "./highlightPaneSettingsTabProvider";
 import {getActiveThemeColor} from "./theme-utils";
+import {PluginI18nService} from "./services/plugin-i18n.service";
 
 /** Tabby 설정 시스템에 기본값을 등록합니다 */
 export class HighlightPaneConfigProvider extends ConfigProvider {
@@ -32,6 +34,7 @@ export class HighlightPaneConfigProvider extends ConfigProvider {
   imports: [
     CommonModule,
     FormsModule,
+    TranslateModule.forRoot(),   // 플러그인 전용 독립 TranslateService (tabby-core 1.x에 TranslateService 미포함)
   ],
   declarations: [
     HighlightPaneSettingsComponent,
@@ -48,7 +51,9 @@ export default class HighlightPaneModule {
   constructor (
     private configService: ConfigService,
     private themesService: ThemesService,
+    private pluginI18n: PluginI18nService,    // 번역 리소스 등록 및 언어 활성화
   ) {
+    this.pluginI18n.init()
     this.initCSS()
   }
 
