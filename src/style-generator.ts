@@ -44,14 +44,14 @@ split-tab > .child {
   overflow: hidden !important;
 }
 
-/* [highlight-pane] 비활성 pane 흐리게 (분할 시에만, 단일 pane 제외) */
-split-tab > .child:not([style*="width: 100%; height: 100%"]):not(.focused) {
+/* [highlight-pane] 비활성 pane 흐리게 (분할 시에만 — hp-split 클래스 필수) */
+split-tab.hp-split > .child:not(.focused) {
   opacity: ${config.inactiveOpacity} !important;
   transition: all ${config.inactiveTransition}ms ease-in-out;
 }
 
-/* [highlight-pane] 활성 pane 하이라이트 (단일 pane 제외) */
-split-tab > .focused.child:not([style*="width: 100%; height: 100%"]) {
+/* [highlight-pane] 활성 pane 하이라이트 (분할 시에만 — hp-split 클래스 필수) */
+split-tab.hp-split > .focused.child {
   box-shadow:
     inset 0 0 0 ${config.borderWidth}px ${config.borderColor},
     inset 0 0 ${config.innerGlowSize}px ${innerGlow},
@@ -67,8 +67,8 @@ split-tab terminal-toolbar {
   border-radius: ${config.paneRadius}px ${config.paneRadius}px 0 0 !important;
 }
 
-${config.highlightToolbar ? `/* [highlight-pane] 활성 pane 툴바 강조 */
-split-tab > .focused.child terminal-toolbar {
+/* [highlight-pane] 활성 pane 툴바 강조 (분할 시에만 — hp-split 클래스 필수) */
+split-tab.hp-split > .focused.child terminal-toolbar {
   filter: brightness(${config.toolbarBrightness}) !important;
   box-shadow:
     inset 0 ${bw}px 0 0 rgba(${tr}, ${tg}, ${tb}, 1),
@@ -77,7 +77,7 @@ split-tab > .focused.child terminal-toolbar {
     inset 0 0 ${config.toolbarInnerGlowSize}px ${toolbarInnerGlow},
     0 0 ${config.toolbarOuterGlowSize}px ${toolbarOuterGlow} !important;
   transition: all ${config.transition}ms ease-in-out;
-}` : ''}
+}
 `.trim()
 }
 

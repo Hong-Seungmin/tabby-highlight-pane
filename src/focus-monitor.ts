@@ -2,8 +2,14 @@ import { Injectable } from '@angular/core'
 import { Subject, Observable } from 'rxjs'
 
 /**
- * FocusMonitor: Tabby split-tab의 활성(focused) 상태 변화를 감지합니다.
- * MutationObserver를 사용하여 .focused 클래스 변경을 실시간으로 추적합니다.
+ * FocusMonitor: Tabby split-tab의 활성(focused) 상태 변화와 분할 상태를 감지합니다.
+ *
+ * 분할 판정 방식:
+ *   - split-tab 내 직접 자식 .child 요소 개수 >= 2 → hp-split 클래스 부여
+ *   - 개수 < 2 → hp-single 클래스 부여 (하이라이팅 비활성)
+ *
+ * CSS는 split-tab.hp-split 선택자로만 하이라이트를 적용하므로
+ * 단일 pane 상태에서는 절대 하이라이트가 나타나지 않습니다.
  */
 @Injectable()
 export class FocusMonitor {
@@ -13,41 +19,35 @@ export class FocusMonitor {
 
   /**
    * MutationObserver를 시작합니다.
-   * document 내 모든 split-tab 요소의 .focused 클래스 변화를 감시합니다.
+   * document.body 전체를 감시하여 아래 변화를 모두 감지합니다:
+   *   - .child 요소의 class 변화 (focused 추가/제거)
+   *   - split-tab 내 자식 추가/제거 (분할/합치기)
+   *   - 새 split-tab 요소 동적 추가
    */
   startMonitoring (): void {
     if (this.observer) return
 
     this.observer = new MutationObserver(() => {
+      this.updateSplitClasses()
       this.updateFocusedElement()
     })
 
-    // 모든 split-tab 요소 감시
-    const splitTabs = document.querySelectorAll('split-tab')
-    splitTabs.forEach(tab => {
-      this.observer!.observe(tab, {
-        attributes: true,
-        attributeFilter: ['class'],  // class 속성만 감시 (성능 최적화)
-        subtree: true,               // 하위 요소 전체 감시
-      })
+    // body 전체를 단일 observer로 감시 (class 변화 + 자식 추가/제거 모두 포함)
+    this.observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ['class'],
     })
 
-    // split-tab이 아직 없는 경우 document body 감시 (동적 추가 대응)
-    if (splitTabs.length === 0) {
-      this.observer.observe(document.body, {
-        childList: true,
-        subtree: true,
-        attributes: true,
-        attributeFilter: ['class'],
-      })
-    }
-
-    // 초기 포커스 상태 설정
+    // 초기 상태 즉시 설정
+    this.updateSplitClasses()
     this.updateFocusedElement()
   }
 
   /**
    * MutationObserver를 정지하고 리소스를 정리합니다.
+   * hp-split / hp-single 클래스도 모두 제거합니다.
    */
   stopMonitoring (): void {
     if (this.observer) {
@@ -55,14 +55,30 @@ export class FocusMonitor {
       this.observer = null
     }
     this.currentFocused = null
+    document.querySelectorAll('split-tab').forEach(tab => {
+      tab.classList.remove('hp-split', 'hp-single')
+    })
   }
 
   /**
    * 포커스 변경 Observable을 반환합니다.
-   * 활성 pane이 변경될 때마다 새 HTMLElement 또는 null을 방출합니다.
    */
   onFocusChange (): Observable<HTMLElement | null> {
     return this.focusSubject.asObservable()
+  }
+
+  /**
+   * 모든 split-tab에 hp-split / hp-single 클래스를 토글합니다.
+   *   직접 자식 .child 개수 >= 2 → hp-split (하이라이팅 활성)
+   *   직접 자식 .child 개수  < 2 → hp-single (하이라이팅 비활성)
+   */
+  private updateSplitClasses (): void {
+    document.querySelectorAll('split-tab').forEach(tab => {
+      const paneCount = tab.querySelectorAll(':scope > .child').length
+      const isSplit = paneCount >= 2
+      tab.classList.toggle('hp-split', isSplit)
+      tab.classList.toggle('hp-single', !isSplit)
+    })
   }
 
   /**
@@ -77,4 +93,3 @@ export class FocusMonitor {
     }
   }
 }
-

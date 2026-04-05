@@ -17,8 +17,7 @@ export default {
     autoThemeColor:      'Auto Theme Color',
     autoThemeColorDesc:
       'Automatically applies the color at the specified index from the terminal ' +
-      'color palette to borders and glow based on dark/light mode. ' +
-      '(Standard theme = dark palette, Paper theme = light palette)',
+      'color palette to borders and glow based on dark/light mode. ',
     colorLabel:          'Color',
     colorIndex:          '',
 

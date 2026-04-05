@@ -16,8 +16,7 @@ export default {
     activePane:          '활성 구역',
     autoThemeColor:      '테마 색상 자동 적용',
     autoThemeColorDesc:
-      '다크/라이트 모드에 따라 터미널 색상표의 지정 번호 색상을 테두리·글로우에 자동 적용합니다. ' +
-      '(Standard 테마 = 다크 색상표, Paper 테마 = 라이트 색상표)',
+      '다크/라이트 모드에 따라 터미널 색상표의 지정 번호 색상을 테두리·글로우에 자동 적용합니다. ',
     colorLabel:          '색상',
     colorIndex:          '번',
 
