@@ -1,28 +1,36 @@
 {
   "name": "tabby-highlight-pane",
-  "version": "1.0.2",
-  "description": "Tabby plugin that highlights the active split pane",
+  "version": "1.0.3",
+  "description": "Tabby terminal plugin that highlights the active split pane for better visual identification",
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "module": "src/index.ts",
+  "type": "commonjs",
+  "license": "MIT",
+  "tabby-plugin": {
+    "entry": "dist/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Hong-Seungmin/tabby-highlight-pane.git"
+  },
+  "author": {
+    "name": "smhong",
+    "email": "globalsh1@gmail.com"
+  },
   "keywords": [
     "tabby-plugin",
     "highlight",
     "pane"
   ],
-  "main": "dist/index.js",
-  "tabby-plugin": {
-    "entry": "dist/index.js"
-  },
   "files": [
-    "dist/**/*",
-    "README.md",
-    "package.json"
+    "dist"
   ],
   "scripts": {
     "build": "webpack --mode production",
     "watch": "webpack --mode development --watch",
-    "deploy": "webpack --mode development && powershell -Command \"$target='$env:APPDATA\\tabby\\plugins\\node_modules\\tabby-highlight-pane'; New-Item -ItemType Directory -Force -Path $target\\dist; Copy-Item dist\\* $target\\dist\\ -Force; Copy-Item package.json $target\\ -Force; Write-Host 'Deploy complete'\""
+    "prepublishOnly": "npm run build"
   },
-  "author": "smhong",
-  "license": "MIT",
   "devDependencies": {
     "@angular/common": "^15.2.10",
     "@angular/core": "^15.2.10",
