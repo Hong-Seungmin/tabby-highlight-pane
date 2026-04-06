@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "description": "Tabby plugin that highlights the active split pane",
   "keywords": [
-    "tabby-plugin"
+    "tabby-plugin",
+    "highlight",
+    "pane"
   ],
   "main": "dist/index.js",
   "scripts": {
