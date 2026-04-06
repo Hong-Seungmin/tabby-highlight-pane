@@ -33,9 +33,12 @@ export function generateCSS(config: HighlightConfig): string {
   // transition: all 대신 실제로 변하는 속성만 명시하여 드래그/애니메이션 충돌 방지
   const t = config.transition
   const ti = config.inactiveTransition
-  const paneTr     = `opacity ${t}ms ease-in-out, box-shadow ${t}ms ease-in-out, filter ${t}ms ease-in-out`
-  const inactiveTr = `opacity ${ti}ms ease-in-out`
-  const toolbarTr  = `filter ${t}ms ease-in-out, box-shadow ${t}ms ease-in-out`
+  const paneTr        = `opacity ${t}ms ease-in-out, box-shadow ${t}ms ease-in-out, filter ${t}ms ease-in-out`
+  const inactiveTr    = `opacity ${ti}ms ease-in-out`
+  // 툴바 컨테이너: 테두리(box-shadow)만 전환 — filter는 자식 요소에서 별도 처리
+  const toolbarTr     = `box-shadow ${t}ms ease-in-out`
+  // 툴바 자식(텍스트·아이콘): 밝기(filter)만 전환 — 테두리와 독립
+  const toolbarChildTr = `filter ${t}ms ease-in-out`
 
   // 분할 여부는 CSS :has(> .child:nth-child(2)) 선택자로 판정합니다.
   // JS MutationObserver / hp-split 클래스 주입이 불필요합니다.
@@ -77,16 +80,24 @@ split-tab terminal-toolbar {
   border-radius: ${config.paneRadius}px ${config.paneRadius}px 0 0 !important;
 }
 
-/* [highlight-pane] 활성 pane 툴바 강조 (분할 시에만) */
+/* [highlight-pane] 툴바 내용(텍스트·아이콘) 밝기 전환 기반 설정 */
+split-tab terminal-toolbar > * {
+  transition: ${toolbarChildTr};
+}
+
+/* [highlight-pane] 활성 pane 툴바 테두리·글로우 (분할 시에만) */
 ${split} > .child.focused terminal-toolbar {
-  filter: brightness(${config.toolbarBrightness}) !important;
   box-shadow:
     inset 0 ${bw}px 0 0 rgba(${tr}, ${tg}, ${tb}, 1),
     inset ${bw}px 0 0 0 rgba(${tr}, ${tg}, ${tb}, 1),
     inset -${bw}px 0 0 0 rgba(${tr}, ${tg}, ${tb}, 1),
     inset 0 0 ${config.toolbarInnerGlowSize}px ${toolbarInnerGlow},
     0 0 ${config.toolbarOuterGlowSize}px ${toolbarOuterGlow} !important;
-  transition: ${toolbarTr};
+}
+
+/* [highlight-pane] 활성 pane 툴바 내용 밝기 강조 — 테두리와 독립 (분할 시에만) */
+${split} > .child.focused terminal-toolbar > * {
+  filter: brightness(${config.toolbarBrightness}) !important;
 }
 `.trim()
 }
