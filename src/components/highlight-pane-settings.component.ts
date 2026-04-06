@@ -476,11 +476,15 @@ export class HighlightPaneSettingsComponent implements OnInit {
     if (!this.configService.store.highlightPane) {
       this.configService.store.highlightPane = {}
     }
-    Object.assign(this.configService.store.highlightPane, this.config)
-    if (this.config.dynamicBorderColor) {
-      delete this.configService.store.highlightPane.borderColor
-      delete this.configService.store.highlightPane.toolbarBorderColor
-    }
+    // dynamicBorderColor=true 일 때는 borderColor/toolbarBorderColor를 기본값으로 설정.
+    // ConfigProxy.__setValue는 값이 기본값과 같으면 _store에서 자동 삭제하므로
+    // YAML에 불필요한 색상값이 남지 않는다.
+    // 주의: ConfigProxy 프로퍼티는 configurable:false 이므로 delete 연산은
+    //       strict mode에서 TypeError를 발생시켜 save() 전체를 중단시킨다.
+    const toSave = this.config.dynamicBorderColor
+      ? { ...this.config, borderColor: DEFAULT_CONFIG.borderColor, toolbarBorderColor: DEFAULT_CONFIG.toolbarBorderColor }
+      : { ...this.config }
+    Object.assign(this.configService.store.highlightPane, toSave)
     this.configService.save()
   }
 

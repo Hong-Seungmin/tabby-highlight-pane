@@ -45,7 +45,12 @@ export class PluginI18nService implements OnDestroy {
     // 3. 현재 언어 적용
     this.applyLanguage()
 
-    // 4. Tabby 설정 변경 시 재적용 (언어 변경 포함)
+    // 4. 설정 파일 로드 완료 시 재적용
+    //    — 최초 실행 시 store가 아직 로드되지 않은 상태에서 init()이 호출된 경우 대비
+    //    — dynamicBorderColor=true 등 기본값과 동일한 설정에서 changed$가 발생하지 않는 경우에도 정상 적용
+    this.configService.ready$.subscribe(() => this.applyLanguage())
+
+    // 5. Tabby 설정 변경 시 재적용 (언어 변경 포함)
     this.sub = this.configService.changed$.subscribe(() => this.applyLanguage())
   }
 
