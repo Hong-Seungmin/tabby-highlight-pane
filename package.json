@@ -1,6 +1,6 @@
 {
   "name": "tabby-highlight-pane",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "Tabby plugin that highlights the active split pane",
   "keywords": [
     "tabby-plugin",
@@ -8,12 +8,20 @@
     "pane"
   ],
   "main": "dist/index.js",
-  "scripts": {
-    "build": "node node_modules/webpack-cli/bin/cli.js --progress",
-    "watch": "node node_modules/webpack-cli/bin/cli.js --progress --watch",
-    "deploy": "node node_modules/webpack-cli/bin/cli.js --progress && powershell -Command \"Copy-Item dist\\index.js '%APPDATA%\\tabby\\plugins\\node_modules\\tabby-highlight-pane\\dist\\index.js' -Force; Copy-Item dist\\index.js.map '%APPDATA%\\tabby\\plugins\\node_modules\\tabby-highlight-pane\\dist\\index.js.map' -Force; Copy-Item package.json '%APPDATA%\\tabby\\plugins\\node_modules\\tabby-highlight-pane\\package.json' -Force; Write-Host 'Deploy complete'\""
+  "tabby-plugin": {
+    "entry": "dist/index.js"
   },
-  "author": "",
+  "files": [
+    "dist/**/*",
+    "README.md",
+    "package.json"
+  ],
+  "scripts": {
+    "build": "webpack --mode production",
+    "watch": "webpack --mode development --watch",
+    "deploy": "webpack --mode development && powershell -Command \"$target='$env:APPDATA\\tabby\\plugins\\node_modules\\tabby-highlight-pane'; New-Item -ItemType Directory -Force -Path $target\\dist; Copy-Item dist\\* $target\\dist\\ -Force; Copy-Item package.json $target\\ -Force; Write-Host 'Deploy complete'\""
+  },
+  "author": "smhong",
   "license": "MIT",
   "devDependencies": {
     "@angular/common": "^15.2.10",
