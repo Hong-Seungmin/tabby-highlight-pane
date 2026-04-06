@@ -1,5 +1,7 @@
 # ─── Project-specific ──────────────────────────────────────────────────────────
 
+.npmrc
+
 # Build output
 dist/
 
