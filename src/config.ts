@@ -18,7 +18,7 @@ export interface HighlightConfig {
   inactiveOpacity: number
   inactiveTransition: number
 
-  // 툴바 (8개) — 활성구역과 동일한 항목 추가
+  // 툴바 (9개) — 활성구역과 동일한 항목 추가
   toolbarBrightness: number
   toolbarBorderColor: string
   toolbarBorderWidth: number
@@ -26,6 +26,7 @@ export interface HighlightConfig {
   toolbarInnerGlowAlpha: number  // 활성구역 innerGlowAlpha에 대응
   toolbarOuterGlowSize: number   // 활성구역 outerGlowSize에 대응
   toolbarOuterGlowAlpha: number  // 활성구역 outerGlowAlpha에 대응
+  toolbarTransition: number      // 활성구역 transition에 대응
   highlightToolbar: boolean
 
   // 동기화 — 활성구역 ↔ 툴바 공통 설정 링크
@@ -69,6 +70,7 @@ export const DEFAULT_CONFIG: HighlightConfig = {
   toolbarInnerGlowAlpha: 0.2,
   toolbarOuterGlowSize: 15,
   toolbarOuterGlowAlpha: 0.3,
+  toolbarTransition: 200,     // 활성구역과 동일 기본값 (syncActiveToolbar=true 기본)
   highlightToolbar: true,
 
   // 동기화 — 기본값 ON (활성구역 색상 기본값과 툴바 색상 기본값이 동일)

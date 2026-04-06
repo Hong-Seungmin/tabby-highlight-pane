@@ -240,11 +240,19 @@ import { getActiveThemeColor } from '../theme-utils'
         </div>
 
         <div class="form-line">
-          <div class="header"><div class="title">{{ 'highlightPane.transitionSpeed' | translate }}</div></div>
+          <div class="header">
+            <div class="title">
+              {{ 'highlightPane.transitionSpeed' | translate }}
+              <i *ngIf="config.syncActiveToolbar" class="fas fa-link ms-1"
+                style="color:#85A4AE; font-size:0.75em"
+                [title]="'highlightPane.syncedWithToolbar' | translate"></i>
+            </div>
+          </div>
           <div class="d-flex align-items-center gap-2">
             <input type="range" class="form-range" min="0" max="1000" step="50"
               style="width:140px; flex-shrink:0"
-              [(ngModel)]="config.transition" (ngModelChange)="save()">
+              [(ngModel)]="config.transition"
+              (ngModelChange)="onActivePaneCommon('transition', 'toolbarTransition', $event)">
             <span class="text-muted" style="display:inline-block; width:52px; text-align:right">{{ config.transition }}ms</span>
           </div>
         </div>
@@ -438,6 +446,28 @@ import { getActiveThemeColor } from '../theme-utils'
           </div>
         </div>
 
+        <!-- Toolbar Transition Speed (common — linkable with active pane) -->
+        <div class="form-line">
+          <div class="header">
+            <div class="title">
+              {{ 'highlightPane.transitionSpeed' | translate }}
+              <i *ngIf="config.syncActiveToolbar" class="fas fa-link ms-1"
+                style="color:#85A4AE; font-size:0.75em"
+                [title]="'highlightPane.syncedWithActivePane' | translate"></i>
+            </div>
+            <div *ngIf="config.syncActiveToolbar" class="description" style="font-size:0.78rem; color:#85A4AE">
+              {{ 'highlightPane.syncedWithActivePane' | translate }}
+            </div>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <input type="range" class="form-range" min="0" max="1000" step="50"
+              style="width:140px; flex-shrink:0"
+              [(ngModel)]="config.toolbarTransition"
+              (ngModelChange)="onToolbarCommon('transition', 'toolbarTransition', $event)">
+            <span class="text-muted" style="display:inline-block; width:52px; text-align:right">{{ config.toolbarTransition }}ms</span>
+          </div>
+        </div>
+
         <!-- Toolbar Brightness (toolbar only) -->
         <div class="form-line">
           <div class="header">
@@ -539,6 +569,7 @@ export class HighlightPaneSettingsComponent implements OnInit {
       this.config.toolbarInnerGlowAlpha = this.config.innerGlowAlpha
       this.config.toolbarOuterGlowSize  = this.config.outerGlowSize
       this.config.toolbarOuterGlowAlpha = this.config.outerGlowAlpha
+      this.config.toolbarTransition     = this.config.transition
     }
     this.save()
   }
@@ -594,6 +625,7 @@ export class HighlightPaneSettingsComponent implements OnInit {
       toolbarInnerGlowAlpha: u.toolbarInnerGlowAlpha ?? DEFAULT_CONFIG.toolbarInnerGlowAlpha,
       toolbarOuterGlowSize:  u.toolbarOuterGlowSize  ?? DEFAULT_CONFIG.toolbarOuterGlowSize,
       toolbarOuterGlowAlpha: u.toolbarOuterGlowAlpha ?? DEFAULT_CONFIG.toolbarOuterGlowAlpha,
+      toolbarTransition:     u.toolbarTransition     ?? DEFAULT_CONFIG.toolbarTransition,
       highlightToolbar:      true,
       syncActiveToolbar:     u.syncActiveToolbar     ?? DEFAULT_CONFIG.syncActiveToolbar,
       dynamicBorderColor:    isDynamic,
