@@ -3,10 +3,7 @@ import {CommonModule} from '@angular/common'
 import {FormsModule} from '@angular/forms'
 import {TranslateModule} from '@ngx-translate/core'
 import {ConfigProvider, ConfigService, ThemesService} from 'tabby-core'
-import {TerminalDecorator} from 'tabby-terminal'
 import {SettingsTabProvider} from 'tabby-settings'
-import {HighlightPaneDecorator} from './decorator'
-import {FocusMonitor} from './focus-monitor'
 import {DEFAULT_CONFIG} from './config'
 import {generateCSS} from './style-generator'
 import {HighlightPaneSettingsComponent} from './components/highlight-pane-settings.component'
@@ -25,8 +22,11 @@ export class HighlightPaneConfigProvider extends ConfigProvider {
 /**
  * HighlightPaneModule
  *
- * CSS는 NgModule 생성자에서 즉시 주입합니다.
- * TerminalDecorator는 탭 생성 이후 업데이트용으로 사용됩니다.
+ * CSS-first 구조:
+ *   - JS는 설정값·테마 색상을 CSS로 변환해 style 요소에 1회 주입하는 역할만 수행
+ *   - 분할 여부 판정은 CSS :has(> .child:nth-child(2)) 선택자가 담당
+ *   - focus 상태는 DOM의 .focused 클래스를 CSS가 직접 처리
+ *   - 설정/테마 변경 시에만 CSS 재생성 (focus 변경 시 재생성 없음)
  *
  * 공식 규칙: default export NgModule + package.json "tabby-plugin" 키워드
  */
@@ -40,10 +40,7 @@ export class HighlightPaneConfigProvider extends ConfigProvider {
     HighlightPaneSettingsComponent,
   ],
   providers: [
-    FocusMonitor,
-    HighlightPaneDecorator,
     { provide: ConfigProvider, useClass: HighlightPaneConfigProvider, multi: true },
-    { provide: TerminalDecorator, useClass: HighlightPaneDecorator, multi: true },
     { provide: SettingsTabProvider, useClass: HighlightPaneSettingsTabProvider, multi: true },
   ],
 })

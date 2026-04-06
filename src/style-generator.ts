@@ -27,9 +27,19 @@ export function generateCSS(config: HighlightConfig): string {
   const outerGlow = `rgba(${r}, ${g}, ${b}, ${config.outerGlowAlpha})`
   const toolbarBase = `rgba(${tr}, ${tg}, ${tb}, 0.1)`
   const bw = config.toolbarBorderWidth
-  // 툴바 글로우 (활성구역과 동일하거나 독립 설정 가능)
   const toolbarInnerGlow = `rgba(${tr}, ${tg}, ${tb}, ${config.toolbarInnerGlowAlpha})`
   const toolbarOuterGlow = `rgba(${tr}, ${tg}, ${tb}, ${config.toolbarOuterGlowAlpha})`
+
+  // transition: all 대신 실제로 변하는 속성만 명시하여 드래그/애니메이션 충돌 방지
+  const t = config.transition
+  const ti = config.inactiveTransition
+  const paneTr     = `opacity ${t}ms ease-in-out, box-shadow ${t}ms ease-in-out, filter ${t}ms ease-in-out`
+  const inactiveTr = `opacity ${ti}ms ease-in-out`
+  const toolbarTr  = `filter ${t}ms ease-in-out, box-shadow ${t}ms ease-in-out`
+
+  // 분할 여부는 CSS :has(> .child:nth-child(2)) 선택자로 판정합니다.
+  // JS MutationObserver / hp-split 클래스 주입이 불필요합니다.
+  const split = `split-tab:has(> .child:nth-child(2))`
 
   return `
 /* [highlight-pane] split-tab 여백 */
@@ -39,36 +49,36 @@ split-tab {
 
 /* [highlight-pane] 기본 pane 스타일: 전환효과 + 둥근 모서리 */
 split-tab > .child {
-  transition: all ${config.transition}ms ease-in-out;
+  transition: ${paneTr};
   border-radius: ${config.paneRadius}px !important;
   overflow: hidden !important;
 }
 
-/* [highlight-pane] 비활성 pane 흐리게 (분할 시에만 — hp-split 클래스 필수) */
-split-tab.hp-split > .child:not(.focused) {
+/* [highlight-pane] 비활성 pane 흐리게 (분할 시에만) */
+${split} > .child:not(.focused) {
   opacity: ${config.inactiveOpacity} !important;
-  transition: all ${config.inactiveTransition}ms ease-in-out;
+  transition: ${inactiveTr};
 }
 
-/* [highlight-pane] 활성 pane 하이라이트 (분할 시에만 — hp-split 클래스 필수) */
-split-tab.hp-split > .focused.child {
+/* [highlight-pane] 활성 pane 하이라이트 (분할 시에만) */
+${split} > .child.focused {
   box-shadow:
     inset 0 0 0 ${config.borderWidth}px ${config.borderColor},
     inset 0 0 ${config.innerGlowSize}px ${innerGlow},
     0 0 ${config.outerGlowSize}px ${outerGlow} !important;
   opacity: ${config.opacity} !important;
-  transition: all ${config.transition}ms ease-in-out;
+  transition: ${paneTr};
 }
 
 /* [highlight-pane] split-tab 내 모든 툴바 기본 스타일 */
 split-tab terminal-toolbar {
-  transition: all ${config.transition}ms ease-in-out;
+  transition: ${toolbarTr};
   box-shadow: inset 0 -1px 0 ${toolbarBase} !important;
   border-radius: ${config.paneRadius}px ${config.paneRadius}px 0 0 !important;
 }
 
-/* [highlight-pane] 활성 pane 툴바 강조 (분할 시에만 — hp-split 클래스 필수) */
-split-tab.hp-split > .focused.child terminal-toolbar {
+/* [highlight-pane] 활성 pane 툴바 강조 (분할 시에만) */
+${split} > .child.focused terminal-toolbar {
   filter: brightness(${config.toolbarBrightness}) !important;
   box-shadow:
     inset 0 ${bw}px 0 0 rgba(${tr}, ${tg}, ${tb}, 1),
@@ -76,7 +86,7 @@ split-tab.hp-split > .focused.child terminal-toolbar {
     inset -${bw}px 0 0 0 rgba(${tr}, ${tg}, ${tb}, 1),
     inset 0 0 ${config.toolbarInnerGlowSize}px ${toolbarInnerGlow},
     0 0 ${config.toolbarOuterGlowSize}px ${toolbarOuterGlow} !important;
-  transition: all ${config.transition}ms ease-in-out;
+  transition: ${toolbarTr};
 }
 `.trim()
 }
