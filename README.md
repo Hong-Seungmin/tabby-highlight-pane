@@ -1,9 +1,13 @@
-# tabby-highlight-pane
-
 A [Tabby](https://tabby.sh) plugin that visually highlights the **active split pane** with a customizable border glow and dims inactive panes — making it easy to tell at a glance which terminal you're working in.
 
-![License](https://img.shields.io/badge/license-MIT-blue.svg)
-![Tabby Plugin](https://img.shields.io/badge/tabby-plugin-green.svg)
+---
+
+## 📸 Screenshots
+
+|               Active Pane Highlighting               |                   Plugin Settings UI                    |
+|:----------------------------------------------------:|:-------------------------------------------------------:|
+|     ![Highlight Demo](./.assets/Screenshot1.png)     |        ![Settings UI](./.assets/Screenshot2.png)        |
+| *Active terminal pane with customizable glow effect* | *Comprehensive configuration options in Tabby settings* |
 
 ---
 
@@ -26,7 +30,7 @@ A [Tabby](https://tabby.sh) plugin that visually highlights the **active split p
 
 ### Build
 
-```bash
+``` bash
 # Install dependencies
 npm install
 
@@ -58,6 +62,6 @@ src/
 
 ## 🤝 Contributing
 
-Contributions, issues, and feature requests are welcome!  
-Feel free to open an [issue](../../issues) or submit a pull request.
+Contributions, issues, and feature requests are welcome!
 
+Feel free to open an [issue](https://www.google.com/search?q=../../issues) or submit a pull request.
