@@ -38,13 +38,20 @@ export function generateCSS(config: HighlightConfig): string {
   // 포커스 이탈 시: opacity와 box-shadow 모두 비활성 전환 속도(ti) 사용
   const inactiveTr = `opacity ${ti}ms ease-in-out, box-shadow ${ti}ms ease-in-out`
   // 툴바 컨테이너: 테두리(box-shadow)만 전환 — filter는 자식 요소에서 별도 처리
-  const toolbarTr     = `box-shadow ${tt}ms ease-in-out`
-  // 툴바 자식(텍스트·아이콘): 밝기(filter)만 전환 — 테두리와 독립
-  const toolbarChildTr = `filter ${tt}ms ease-in-out`
+  const toolbarTr     = `box-shadow ${tt}ms ease-in-out, background-color ${tt}ms ease-in-out`
+  // 툴바 자식(텍스트·아이콘): 밝기(filter)·글자색만 전환 — 테두리와 독립
+  const toolbarChildTr = `filter ${tt}ms ease-in-out, color ${tt}ms ease-in-out`
 
   // 분할 여부는 CSS :has(> .child:nth-child(2)) 선택자로 판정합니다.
   // JS MutationObserver / hp-split 클래스 주입이 불필요합니다.
   const split = `split-tab:has(> .child:nth-child(2))`
+  const single = `split-tab:not(:has(> .child:nth-child(2)))`
+
+  // 활성 헤더: 분할 시 포커스된 pane 툴바, (옵션) 비분할 탭의 툴바
+  const activeHeader = [
+    `${split} > .child.focused terminal-toolbar`,
+    ...(config.headerSinglePane ? [`${single} > .child terminal-toolbar`] : []),
+  ]
 
   return `
 /* [highlight-pane] split-tab 여백 */
@@ -99,18 +106,69 @@ ${split} > .child.focused terminal-toolbar {
 
 /* [highlight-pane] 비활성 pane 툴바 이탈 전환 — 비활성 전환 속도(ti) 사용 */
 ${split} > .child:not(.focused) terminal-toolbar {
-  transition: box-shadow ${ti}ms ease-in-out !important;
+  transition: box-shadow ${ti}ms ease-in-out, background-color ${ti}ms ease-in-out !important;
 }
 
 /* [highlight-pane] 비활성 pane 툴바 내용 이탈 전환 — 비활성 전환 속도(ti) 사용 */
 ${split} > .child:not(.focused) terminal-toolbar > * {
-  transition: filter ${ti}ms ease-in-out !important;
+  transition: filter ${ti}ms ease-in-out, color ${ti}ms ease-in-out !important;
 }
 
 /* [highlight-pane] 활성 pane 툴바 내용 밝기 강조 — 테두리와 독립 (분할 시에만) */
 ${split} > .child.focused terminal-toolbar > * {
   filter: brightness(${config.toolbarBrightness}) !important;
 }
+${generateActiveHeaderCSS(config, activeHeader)}
 `.trim()
 }
 
+/**
+ * 활성 헤더 배경·글자 색상 CSS
+ * 테마 색상 적용 ON + 0번(Tabby 기본)인 항목은 규칙을 생성하지 않아 Tabby 테마 스타일이 그대로 유지됩니다.
+ * 테마 색상 번호(1-15)는 HighlightStyleService가 headerBgColor/headerFgColor에 미리 반영해 전달합니다.
+ *
+ * 글자색은 버튼 색상 변수(--bs-btn-color 등)로 지정해 Tabby의 마우스오버 동작을 유지합니다.
+ *   - 테마 색상 적용 ON (1-15번): 글자색만 지정, 마우스오버는 Tabby 기본(--bs-link-hover-color)
+ *   - 테마 색상 적용 OFF        : 글자색 + 마우스오버 색상(headerHoverColor) 지정
+ */
+function generateActiveHeaderCSS (config: HighlightConfig, selectors: string[]): string {
+  const headerSel = selectors.join(',\n')
+  const headerBtnSel = selectors.map(s => `${s} .btn`).join(',\n')
+  const headerBtnHoverSel = selectors.map(s => `${s} .btn:hover,\n${s} .btn:active`).join(',\n')
+  let css = ''
+  if (!isTabbyDefaultHeader(config.headerBgTheme, config.headerBgThemeIndex)) {
+    const [r, g, b] = hexToRgb(config.headerBgColor)
+    css += `
+/* [highlight-pane] 활성 헤더 배경색 */
+${headerSel} {
+  background-color: rgba(${r}, ${g}, ${b}, ${config.headerBgAlpha}) !important;
+}
+`
+  }
+  if (!isTabbyDefaultHeader(config.headerFgTheme, config.headerFgThemeIndex)) {
+    const hover = config.headerFgTheme ? 'var(--bs-link-hover-color)' : config.headerHoverColor
+    css += `
+/* [highlight-pane] 활성 헤더 글자·아이콘 색상 (배경 변경 시 가시성 확보) */
+${headerSel} {
+  color: ${config.headerFgColor} !important;
+}
+${headerBtnSel} {
+  --bs-btn-color: ${config.headerFgColor} !important;
+  --bs-btn-hover-color: ${hover} !important;
+  --bs-btn-active-color: ${hover} !important;
+  color: var(--bs-btn-color) !important;
+}
+
+/* [highlight-pane] 활성 헤더 마우스오버 색상 */
+${headerBtnHoverSel} {
+  color: var(--bs-btn-hover-color) !important;
+}
+`
+  }
+  return css
+}
+
+/** 테마 색상 적용 ON + 0번 → Tabby 기본 스타일 사용 (CSS 덮어쓰기 없음) */
+export function isTabbyDefaultHeader (theme: boolean, themeIndex: number): boolean {
+  return theme && !(themeIndex > 0)
+}

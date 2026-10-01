@@ -40,6 +40,20 @@ export interface HighlightConfig {
   // 레이아웃 (2개)
   paneMargin: number   // split-tab 주변 여백 (px)
   paneRadius: number   // pane 모서리 둥글기 (px)
+
+  // 활성 헤더 (9개) — 포커스된 pane의 툴바(헤더) 배경·글자 색상
+  // 활성 구역과 동일한 구조: 테마 색상 적용(ON/OFF + 색상 번호) / 직접 지정 색상
+  //   ThemeIndex 0 = Tabby 기본 (테마가 칠한 툴바 색상을 그대로 사용, CSS 덮어쓰기 없음)
+  //   ThemeIndex 1-15 = 터미널 색상표 N번 (다크/라이트 분기)
+  headerSinglePane: boolean     // 분할하지 않은 탭의 헤더에도 적용
+  headerBgTheme: boolean        // 배경색: 테마 색상 적용
+  headerBgThemeIndex: number    // 배경색: 테마 색상 번호 (0 = Tabby 기본, 1-15)
+  headerBgColor: string         // 배경색 직접 지정 (hex)
+  headerBgAlpha: number         // 배경 불투명도 (0-1)
+  headerFgTheme: boolean        // 글자·아이콘 색상: 테마 색상 적용
+  headerFgThemeIndex: number    // 글자·아이콘 색상: 테마 색상 번호 (0 = Tabby 기본, 1-15)
+  headerFgColor: string         // 글자·아이콘 색상 직접 지정 (hex)
+  headerHoverColor: string      // 마우스오버 색상 (글자·아이콘 테마 색상 적용 OFF일 때)
 }
 
 /**
@@ -83,5 +97,19 @@ export const DEFAULT_CONFIG: HighlightConfig = {
   // 레이아웃
   paneMargin: 3,
   paneRadius: 6,
+
+  // 활성 헤더 — 기본값은 Tabby 기본 툴바 스타일을 그대로 사용 (테마 색상 적용 ON + 0번)
+  //   Tabby 테마: tab-body terminal-toolbar { background: var(--bs-body-bg) }
+  //   헤더 버튼(.btn-link): 글자 var(--bs-link-color), 마우스오버 var(--bs-link-hover-color)
+  //   Color 값은 테마 색상 적용을 끌 때 렌더링된 색상을 읽지 못한 경우의 초기값
+  headerSinglePane: true,
+  headerBgTheme: true,
+  headerBgThemeIndex: 0,
+  headerBgColor: '#000000',
+  headerBgAlpha: 0.5,
+  headerFgTheme: true,
+  headerFgThemeIndex: 0,
+  headerFgColor: '#ffffff',
+  headerHoverColor: '#ffffff',
 }
 
