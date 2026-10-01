@@ -38,13 +38,20 @@ export function generateCSS(config: HighlightConfig): string {
   // 포커스 이탈 시: opacity와 box-shadow 모두 비활성 전환 속도(ti) 사용
   const inactiveTr = `opacity ${ti}ms ease-in-out, box-shadow ${ti}ms ease-in-out`
   // 툴바 컨테이너: 테두리(box-shadow)만 전환 — filter는 자식 요소에서 별도 처리
-  const toolbarTr     = `box-shadow ${tt}ms ease-in-out`
-  // 툴바 자식(텍스트·아이콘): 밝기(filter)만 전환 — 테두리와 독립
-  const toolbarChildTr = `filter ${tt}ms ease-in-out`
+  const toolbarTr     = `box-shadow ${tt}ms ease-in-out, background-color ${tt}ms ease-in-out`
+  // 툴바 자식(텍스트·아이콘): 밝기(filter)·글자색만 전환 — 테두리와 독립
+  const toolbarChildTr = `filter ${tt}ms ease-in-out, color ${tt}ms ease-in-out`
 
   // 분할 여부는 CSS :has(> .child:nth-child(2)) 선택자로 판정합니다.
   // JS MutationObserver / hp-split 클래스 주입이 불필요합니다.
   const split = `split-tab:has(> .child:nth-child(2))`
+  const single = `split-tab:not(:has(> .child:nth-child(2)))`
+
+  // 활성 헤더: 분할 시 포커스된 pane 툴바, (옵션) 비분할 탭의 툴바
+  const activeHeader = [
+    `${split} > .child.focused terminal-toolbar`,
+    ...(config.headerSinglePane ? [`${single} > .child terminal-toolbar`] : []),
+  ]
 
   return `
 /* [highlight-pane] split-tab 여백 */
@@ -99,18 +106,47 @@ ${split} > .child.focused terminal-toolbar {
 
 /* [highlight-pane] 비활성 pane 툴바 이탈 전환 — 비활성 전환 속도(ti) 사용 */
 ${split} > .child:not(.focused) terminal-toolbar {
-  transition: box-shadow ${ti}ms ease-in-out !important;
+  transition: box-shadow ${ti}ms ease-in-out, background-color ${ti}ms ease-in-out !important;
 }
 
 /* [highlight-pane] 비활성 pane 툴바 내용 이탈 전환 — 비활성 전환 속도(ti) 사용 */
 ${split} > .child:not(.focused) terminal-toolbar > * {
-  transition: filter ${ti}ms ease-in-out !important;
+  transition: filter ${ti}ms ease-in-out, color ${ti}ms ease-in-out !important;
 }
 
 /* [highlight-pane] 활성 pane 툴바 내용 밝기 강조 — 테두리와 독립 (분할 시에만) */
 ${split} > .child.focused terminal-toolbar > * {
   filter: brightness(${config.toolbarBrightness}) !important;
 }
+${generateActiveHeaderCSS(config, activeHeader)}
 `.trim()
 }
 
+/**
+ * 활성 헤더 배경·글자 색상 CSS
+ * *Auto=true 인 항목은 규칙을 생성하지 않아 Tabby 기본 스타일이 그대로 유지됩니다.
+ */
+function generateActiveHeaderCSS (config: HighlightConfig, selectors: string[]): string {
+  const headerSel = selectors.join(',\n')
+  // 헤더 자신 + 내부 모든 요소(.btn, 아이콘 등)의 글자색을 함께 지정
+  const headerAllSel = selectors.map(s => `${s},\n${s} *`).join(',\n')
+  let css = ''
+  if (!config.headerBgAuto) {
+    const [r, g, b] = hexToRgb(config.headerBgColor)
+    css += `
+/* [highlight-pane] 활성 헤더 배경색 */
+${headerSel} {
+  background-color: rgba(${r}, ${g}, ${b}, ${config.headerBgAlpha}) !important;
+}
+`
+  }
+  if (!config.headerFgAuto) {
+    css += `
+/* [highlight-pane] 활성 헤더 글자·아이콘 색상 (배경 변경 시 가시성 확보) */
+${headerAllSel} {
+  color: ${config.headerFgColor} !important;
+}
+`
+  }
+  return css
+}

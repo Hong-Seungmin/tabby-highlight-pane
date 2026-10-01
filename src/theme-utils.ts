@@ -40,3 +40,27 @@ export function getActiveThemeColor (
   const idx = Math.max(0, Math.min(15, colorIndex))
   return scheme?.colors?.[idx] ?? DEFAULT_CONFIG.borderColor
 }
+
+/**
+ * getComputedStyle 결과("rgb(r, g, b)" / "rgba(r, g, b, a)")를 hex + alpha로 변환합니다.
+ * @returns 변환 실패 시 null
+ */
+export function parseCssColor (value: string | null | undefined): { hex: string, alpha: number } | null {
+  const m = /^rgba?\(\s*(\d+)[\s,]+(\d+)[\s,]+(\d+)(?:[\s,/]+([\d.]+))?\s*\)$/i.exec((value ?? '').trim())
+  if (!m) return null
+  const hex = '#' + [m[1], m[2], m[3]]
+    .map(v => ('0' + Math.max(0, Math.min(255, +v)).toString(16)).slice(-2))
+    .join('')
+  return { hex: hex.toUpperCase(), alpha: m[4] !== undefined ? +m[4] : 1 }
+}
+
+/**
+ * 현재 화면에 렌더링된 Tabby 툴바의 기본 배경·글자 색상을 읽습니다.
+ * 툴바가 없으면 각각 null을 반환합니다.
+ */
+export function readTabbyToolbarColors (): { bg: { hex: string, alpha: number } | null, fg: string | null } {
+  const toolbar = document.querySelector('terminal-toolbar')
+  if (!toolbar) return { bg: null, fg: null }
+  const style = getComputedStyle(toolbar)
+  return { bg: parseCssColor(style.backgroundColor), fg: parseCssColor(style.color)?.hex ?? null }
+}

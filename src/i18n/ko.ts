@@ -49,6 +49,19 @@ export default {
     toolbarBrightness:   '툴바 밝기',
     toolbarBrightnessDesc:'기존 색상을 유지하며 밝기만 조절합니다',
 
+    activeHeader:        '활성 헤더',
+    headerSinglePane:    '분할하지 않은 탭에도 적용',
+    headerSinglePaneDesc:'Pane이 하나뿐인 탭의 헤더에도 아래 색상을 적용합니다',
+    headerBgColor:       '헤더 배경색',
+    headerBgColorDesc:   '포커스된 pane의 헤더(툴바) 배경색',
+    headerBgOpacity:     '헤더 배경 불투명도',
+    headerFgColor:       '헤더 글자·아이콘 색상',
+    headerFgColorDesc:   '배경색 변경으로 가시성이 떨어질 때 헤더 내 텍스트·아이콘 색상을 지정합니다',
+    tabbyDefault:        'Tabby 기본값',
+    tabbyDefaultDesc:    '켜면 Tabby 기본 스타일을 그대로 사용합니다',
+    headerPreview:       '헤더 미리보기',
+    headerPreviewDesc:   '헤더는 마우스를 올리거나 툴바를 고정(pin)했을 때 표시됩니다',
+
     resetToDefaults:     '기본값으로 초기화',
     resetToDefaultsDesc: '모든 항목을 기본값으로 되돌립니다 (저장을 눌러야 적용됩니다)',
 

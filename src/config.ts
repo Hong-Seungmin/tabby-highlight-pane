@@ -40,6 +40,15 @@ export interface HighlightConfig {
   // 레이아웃 (2개)
   paneMargin: number   // split-tab 주변 여백 (px)
   paneRadius: number   // pane 모서리 둥글기 (px)
+
+  // 활성 헤더 (6개) — 포커스된 pane의 툴바(헤더) 배경·글자 색상
+  // *Auto=true 이면 Tabby 기본 스타일을 그대로 사용 (CSS 덮어쓰기 없음)
+  headerSinglePane: boolean   // 분할하지 않은 탭의 헤더에도 적용
+  headerBgAuto: boolean       // 배경색: Tabby 기본값 사용
+  headerBgColor: string       // 배경색 (hex)
+  headerBgAlpha: number       // 배경 불투명도 (0-1)
+  headerFgAuto: boolean       // 글자·아이콘 색상: Tabby 기본값 사용
+  headerFgColor: string       // 글자·아이콘 색상 (hex)
 }
 
 /**
@@ -83,5 +92,14 @@ export const DEFAULT_CONFIG: HighlightConfig = {
   // 레이아웃
   paneMargin: 3,
   paneRadius: 6,
+
+  // 활성 헤더 — 기본값은 Tabby 기본 툴바 스타일과 동일
+  //   (tabby-terminal: background rgba(0, 0, 0, .75), 글자색은 테마 전경색 상속)
+  headerSinglePane: true,
+  headerBgAuto: true,
+  headerBgColor: '#000000',
+  headerBgAlpha: 0.75,
+  headerFgAuto: true,
+  headerFgColor: '#ffffff',
 }
 

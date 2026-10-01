@@ -3,6 +3,8 @@ import { TranslateService } from '@ngx-translate/core'
 import { ConfigService, PlatformService } from 'tabby-core'
 import { DEFAULT_CONFIG, HighlightConfig } from '../config'
 import { HighlightStyleService } from '../services/highlight-style.service'
+import { hexToRgb } from '../style-generator'
+import { readTabbyToolbarColors } from '../theme-utils'
 
 /**
  * Highlight Pane 설정 화면 컴포넌트
@@ -487,6 +489,103 @@ import { HighlightStyleService } from '../services/highlight-style.service'
           </div>
         </div>
 
+        <!-- ────── Active Header ────── -->
+        <h4 class="mt-4 mb-3" style="color:#85A4AE; font-size:1rem; text-transform:uppercase; letter-spacing:.05em">
+          {{ 'highlightPane.activeHeader' | translate }}
+        </h4>
+
+        <!-- Apply to non-split tabs -->
+        <div class="form-line">
+          <div class="header">
+            <div class="title">{{ 'highlightPane.headerSinglePane' | translate }}</div>
+            <div class="description">{{ 'highlightPane.headerSinglePaneDesc' | translate }}</div>
+          </div>
+          <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="hp-header-single"
+              [(ngModel)]="config.headerSinglePane" (ngModelChange)="onChange()">
+            <label class="form-check-label" for="hp-header-single"></label>
+          </div>
+        </div>
+
+        <!-- Header background color -->
+        <div class="form-line">
+          <div class="header">
+            <div class="title">{{ 'highlightPane.headerBgColor' | translate }}</div>
+            <div class="description">{{ 'highlightPane.headerBgColorDesc' | translate }}</div>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <div class="form-check form-switch mb-0" [title]="'highlightPane.tabbyDefaultDesc' | translate">
+              <input class="form-check-input" type="checkbox" id="hp-header-bg-auto"
+                [(ngModel)]="config.headerBgAuto" (ngModelChange)="onHeaderAutoChange('bg', $event)">
+              <label class="form-check-label text-muted" for="hp-header-bg-auto" style="font-size:0.85rem">
+                {{ 'highlightPane.tabbyDefault' | translate }}
+              </label>
+            </div>
+            <input type="color" class="form-control form-control-color"
+              style="width:44px; height:32px; padding:2px"
+              [style.opacity]="config.headerBgAuto ? '0.55' : '1'"
+              [style.pointerEvents]="config.headerBgAuto ? 'none' : 'auto'"
+              [(ngModel)]="config.headerBgColor" (ngModelChange)="onChange()">
+            <input type="text" class="form-control form-control-sm font-monospace"
+              style="width:90px; padding:2px 4px"
+              [(ngModel)]="config.headerBgColor"
+              [attr.readonly]="config.headerBgAuto ? '' : null"
+              (change)="onHexInput('headerBgColor')">
+          </div>
+        </div>
+
+        <div class="form-line" *ngIf="!config.headerBgAuto">
+          <div class="header"><div class="title">{{ 'highlightPane.headerBgOpacity' | translate }}</div></div>
+          <div class="d-flex align-items-center gap-2">
+            <input type="range" class="form-range" min="0" max="1" step="0.05"
+              style="width:140px; flex-shrink:0"
+              [(ngModel)]="config.headerBgAlpha" (ngModelChange)="onChange()">
+            <span class="text-muted" style="display:inline-block; width:52px; text-align:right">{{ config.headerBgAlpha | number:'1.0-2' }}</span>
+          </div>
+        </div>
+
+        <!-- Header text / icon color -->
+        <div class="form-line">
+          <div class="header">
+            <div class="title">{{ 'highlightPane.headerFgColor' | translate }}</div>
+            <div class="description">{{ 'highlightPane.headerFgColorDesc' | translate }}</div>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <div class="form-check form-switch mb-0" [title]="'highlightPane.tabbyDefaultDesc' | translate">
+              <input class="form-check-input" type="checkbox" id="hp-header-fg-auto"
+                [(ngModel)]="config.headerFgAuto" (ngModelChange)="onHeaderAutoChange('fg', $event)">
+              <label class="form-check-label text-muted" for="hp-header-fg-auto" style="font-size:0.85rem">
+                {{ 'highlightPane.tabbyDefault' | translate }}
+              </label>
+            </div>
+            <input type="color" class="form-control form-control-color"
+              style="width:44px; height:32px; padding:2px"
+              [style.opacity]="config.headerFgAuto ? '0.55' : '1'"
+              [style.pointerEvents]="config.headerFgAuto ? 'none' : 'auto'"
+              [(ngModel)]="config.headerFgColor" (ngModelChange)="onChange()">
+            <input type="text" class="form-control form-control-sm font-monospace"
+              style="width:90px; padding:2px 4px"
+              [(ngModel)]="config.headerFgColor"
+              [attr.readonly]="config.headerFgAuto ? '' : null"
+              (change)="onHexInput('headerFgColor')">
+          </div>
+        </div>
+
+        <!-- Header preview chip -->
+        <div class="form-line">
+          <div class="header">
+            <div class="title">{{ 'highlightPane.headerPreview' | translate }}</div>
+            <div class="description">{{ 'highlightPane.headerPreviewDesc' | translate }}</div>
+          </div>
+          <div class="d-flex align-items-center gap-2 px-3"
+            style="height:32px; min-width:180px; border-radius:6px; border:1px solid rgba(128,128,128,0.35)"
+            [style.background]="getHeaderPreviewBg()"
+            [style.color]="config.headerFgAuto ? null : config.headerFgColor">
+            <i class="fas fa-terminal"></i>
+            <span style="font-size:0.85rem">user&#64;host: ~</span>
+          </div>
+        </div>
+
       </ng-container>
 
       <!-- ────── Action bar (Reset / Cancel / Save) ────── -->
@@ -658,7 +757,7 @@ export class HighlightPaneSettingsComponent implements OnInit, OnDestroy {
    * 색상 hex 텍스트 입력 처리 (복사/붙여넣기 지원)
    * 유효한 6자리 hex 값인 경우에만 저장합니다.
    */
-  onHexInput (model: 'borderColor' | 'toolbarBorderColor'): void {
+  onHexInput (model: 'borderColor' | 'toolbarBorderColor' | 'headerBgColor' | 'headerFgColor'): void {
     const value = ((this.config as any)[model] as string).trim()
     if (!/^#[0-9A-Fa-f]{6}$/i.test(value)) {
       // 유효하지 않은 값은 기존 값으로 되돌리기
@@ -668,9 +767,38 @@ export class HighlightPaneSettingsComponent implements OnInit, OnDestroy {
     ;(this.config as any)[model] = value
     if (model === 'borderColor') {
       this.onActivePaneCommon('borderColor', 'toolbarBorderColor', value)
-    } else {
+    } else if (model === 'toolbarBorderColor') {
       this.onToolbarCommon('borderColor', 'toolbarBorderColor', value)
+    } else {
+      this.onChange()
     }
+  }
+
+  /**
+   * 활성 헤더 "Tabby 기본값" 토글 처리
+   * 기본값을 끌 때 색상이 아직 기본값이면, 현재 렌더링된 Tabby 툴바 색상으로 시작합니다.
+   */
+  onHeaderAutoChange (target: 'bg' | 'fg', auto: boolean): void {
+    if (!auto) {
+      const tabby = readTabbyToolbarColors()
+      if (target === 'bg' && tabby.bg
+        && this.config.headerBgColor === DEFAULT_CONFIG.headerBgColor
+        && this.config.headerBgAlpha === DEFAULT_CONFIG.headerBgAlpha) {
+        this.config.headerBgColor = tabby.bg.hex
+        this.config.headerBgAlpha = Math.round(tabby.bg.alpha * 100) / 100
+      }
+      if (target === 'fg' && tabby.fg && this.config.headerFgColor === DEFAULT_CONFIG.headerFgColor) {
+        this.config.headerFgColor = tabby.fg
+      }
+    }
+    this.onChange()
+  }
+
+  /** 미리보기 칩 배경 — 기본값 사용 시 Tabby 기본 배경 */
+  getHeaderPreviewBg (): string {
+    const auto = this.config.headerBgAuto
+    const [r, g, b] = hexToRgb(auto ? DEFAULT_CONFIG.headerBgColor : this.config.headerBgColor)
+    return `rgba(${r}, ${g}, ${b}, ${auto ? DEFAULT_CONFIG.headerBgAlpha : this.config.headerBgAlpha})`
   }
 
   getThemeColor (): string {
@@ -713,6 +841,12 @@ export class HighlightPaneSettingsComponent implements OnInit, OnDestroy {
       themeColorIndex:       colorIndex,
       paneMargin:            u.paneMargin            ?? DEFAULT_CONFIG.paneMargin,
       paneRadius:            u.paneRadius            ?? DEFAULT_CONFIG.paneRadius,
+      headerSinglePane:      u.headerSinglePane      ?? DEFAULT_CONFIG.headerSinglePane,
+      headerBgAuto:          u.headerBgAuto          ?? DEFAULT_CONFIG.headerBgAuto,
+      headerBgColor:         u.headerBgColor         ?? DEFAULT_CONFIG.headerBgColor,
+      headerBgAlpha:         u.headerBgAlpha         ?? DEFAULT_CONFIG.headerBgAlpha,
+      headerFgAuto:          u.headerFgAuto          ?? DEFAULT_CONFIG.headerFgAuto,
+      headerFgColor:         u.headerFgColor         ?? DEFAULT_CONFIG.headerFgColor,
     }
   }
 }

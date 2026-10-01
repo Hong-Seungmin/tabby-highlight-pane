@@ -50,6 +50,19 @@ export default {
     toolbarBrightness:   'Toolbar Brightness',
     toolbarBrightnessDesc:'Adjusts brightness while keeping the original color',
 
+    activeHeader:        'Active Header',
+    headerSinglePane:    'Apply to non-split tabs',
+    headerSinglePaneDesc:'Also apply the colors below to the header of tabs with a single pane',
+    headerBgColor:       'Header Background',
+    headerBgColorDesc:   'Header (toolbar) background color of the focused pane',
+    headerBgOpacity:     'Header Background Opacity',
+    headerFgColor:       'Header Text & Icon Color',
+    headerFgColorDesc:   'Text and icon color in the header, to keep it readable on a custom background',
+    tabbyDefault:        'Tabby default',
+    tabbyDefaultDesc:    "When on, Tabby's default style is used as-is",
+    headerPreview:       'Header Preview',
+    headerPreviewDesc:   'The header is shown on hover or when the toolbar is pinned',
+
     resetToDefaults:     'Reset to Defaults',
     resetToDefaultsDesc: 'Restore all options to defaults (applied when you click Save)',
 
