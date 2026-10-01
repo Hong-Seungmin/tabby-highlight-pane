@@ -124,14 +124,19 @@ ${generateActiveHeaderCSS(config, activeHeader)}
 
 /**
  * 활성 헤더 배경·글자 색상 CSS
- * *Auto=true 인 항목은 규칙을 생성하지 않아 Tabby 기본 스타일이 그대로 유지됩니다.
+ * 테마 색상 적용 ON + 0번(Tabby 기본)인 항목은 규칙을 생성하지 않아 Tabby 테마 스타일이 그대로 유지됩니다.
+ * 테마 색상 번호(1-15)는 HighlightStyleService가 headerBgColor/headerFgColor에 미리 반영해 전달합니다.
+ *
+ * 글자색은 버튼 색상 변수(--bs-btn-color 등)로 지정해 Tabby의 마우스오버 동작을 유지합니다.
+ *   - 테마 색상 적용 ON (1-15번): 글자색만 지정, 마우스오버는 Tabby 기본(--bs-link-hover-color)
+ *   - 테마 색상 적용 OFF        : 글자색 + 마우스오버 색상(headerHoverColor) 지정
  */
 function generateActiveHeaderCSS (config: HighlightConfig, selectors: string[]): string {
   const headerSel = selectors.join(',\n')
-  // 헤더 자신 + 내부 모든 요소(.btn, 아이콘 등)의 글자색을 함께 지정
-  const headerAllSel = selectors.map(s => `${s},\n${s} *`).join(',\n')
+  const headerBtnSel = selectors.map(s => `${s} .btn`).join(',\n')
+  const headerBtnHoverSel = selectors.map(s => `${s} .btn:hover,\n${s} .btn:active`).join(',\n')
   let css = ''
-  if (!config.headerBgAuto) {
+  if (!isTabbyDefaultHeader(config.headerBgTheme, config.headerBgThemeIndex)) {
     const [r, g, b] = hexToRgb(config.headerBgColor)
     css += `
 /* [highlight-pane] 활성 헤더 배경색 */
@@ -140,13 +145,30 @@ ${headerSel} {
 }
 `
   }
-  if (!config.headerFgAuto) {
+  if (!isTabbyDefaultHeader(config.headerFgTheme, config.headerFgThemeIndex)) {
+    const hover = config.headerFgTheme ? 'var(--bs-link-hover-color)' : config.headerHoverColor
     css += `
 /* [highlight-pane] 활성 헤더 글자·아이콘 색상 (배경 변경 시 가시성 확보) */
-${headerAllSel} {
+${headerSel} {
   color: ${config.headerFgColor} !important;
+}
+${headerBtnSel} {
+  --bs-btn-color: ${config.headerFgColor} !important;
+  --bs-btn-hover-color: ${hover} !important;
+  --bs-btn-active-color: ${hover} !important;
+  color: var(--bs-btn-color) !important;
+}
+
+/* [highlight-pane] 활성 헤더 마우스오버 색상 */
+${headerBtnHoverSel} {
+  color: var(--bs-btn-hover-color) !important;
 }
 `
   }
   return css
+}
+
+/** 테마 색상 적용 ON + 0번 → Tabby 기본 스타일 사용 (CSS 덮어쓰기 없음) */
+export function isTabbyDefaultHeader (theme: boolean, themeIndex: number): boolean {
+  return theme && !(themeIndex > 0)
 }

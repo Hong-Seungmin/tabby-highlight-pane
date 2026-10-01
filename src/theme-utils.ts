@@ -60,20 +60,19 @@ export function parseCssColor (value: string | null | undefined): { hex: string,
 }
 
 /**
- * 현재 Tabby 테마가 적용한 툴바 기본 배경·글자 색상을 읽습니다.
- *  1. 렌더링된 terminal-toolbar의 계산된 스타일
- *  2. (툴바가 없으면) Tabby 테마 변수 --bs-body-bg / --bs-body-color
+ * 현재 Tabby 테마가 헤더(툴바)에 사용하는 기본 색상을 읽습니다.
+ *   배경        : --bs-body-bg         (tab-body terminal-toolbar { background: var(--bs-body-bg) })
+ *   글자·아이콘 : --bs-link-color      (헤더 버튼 .btn-link)
+ *   마우스오버  : --bs-link-hover-color
+ * 플러그인이 덮어쓰지 않는 테마 변수를 읽으므로 미리보기·전환 효과의 영향을 받지 않습니다.
  * 읽지 못한 항목은 null을 반환합니다.
  */
-export function readTabbyToolbarColors (): { bg: { hex: string, alpha: number } | null, fg: string | null } {
-  const toolbar = document.querySelector('terminal-toolbar')
-  if (toolbar) {
-    const style = getComputedStyle(toolbar)
-    return { bg: parseCssColor(style.backgroundColor), fg: parseCssColor(style.color)?.hex ?? null }
-  }
-  const root = getComputedStyle(document.documentElement)
+export function readTabbyHeaderColors (): { bg: string | null, fg: string | null, hover: string | null } {
+  const style = getComputedStyle(document.querySelector('terminal-toolbar') ?? document.body)
+  const read = (name: string) => parseCssColor(style.getPropertyValue(name))?.hex ?? null
   return {
-    bg: parseCssColor(root.getPropertyValue('--bs-body-bg')),
-    fg: parseCssColor(root.getPropertyValue('--bs-body-color'))?.hex ?? null,
+    bg: read('--bs-body-bg'),
+    fg: read('--bs-link-color'),
+    hover: read('--bs-link-hover-color'),
   }
 }

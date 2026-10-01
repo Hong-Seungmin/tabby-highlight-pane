@@ -14,16 +14,16 @@ export default {
     paneRadiusDesc:      'Pane border-radius',
 
     activePane:          'Active Pane',
-    autoThemeColor:      'Auto Theme Color',
-    autoThemeColorDesc:
-      'Automatically applies the color at the specified index from the terminal ' +
+    applyThemeColor:     'Apply Theme Color',
+    applyThemeColorDesc:
+      'Applies the color at the specified index from the terminal ' +
       'color palette to borders and glow based on dark/light mode. ',
     colorLabel:          'Color',
     colorIndex:          '',
 
     borderColor:         'Border Color',
     syncedWithToolbar:   'Synced with Toolbar',
-    auto:                'Auto',
+    auto:                'Theme',
     borderWidth:         'Border Width (px)',
 
     innerGlowSize:       'Inner Glow Size (px)',
@@ -53,15 +53,22 @@ export default {
     activeHeader:        'Active Header',
     headerSinglePane:    'Apply to non-split tabs',
     headerSinglePaneDesc:'Also apply the colors below to the header of tabs with a single pane',
+    headerThemeDesc:
+      'Index 0 keeps the default header color of the Tabby theme; 1–15 applies that color ' +
+      'from the terminal color palette (switches with dark/light mode)',
+    headerBgTheme:       'Header Background Theme Color',
     headerBgColor:       'Header Background',
     headerBgColorDesc:   'Header (toolbar) background color of the focused pane',
     headerBgOpacity:     'Header Background Opacity',
+    headerFgTheme:       'Header Text & Icon Theme Color',
     headerFgColor:       'Header Text & Icon Color',
     headerFgColorDesc:   'Text and icon color in the header, to keep it readable on a custom background',
+    headerHoverColor:    'Header Hover Color',
+    headerHoverColorDesc:'Highlight color of header text and icons on mouse hover',
     tabbyDefault:        'Tabby default',
-    tabbyDefaultDesc:    "When on, follows the toolbar color of the current Tabby theme (updates with the theme)",
     headerPreview:       'Header Preview',
-    headerPreviewDesc:   'The header is shown on hover or when the toolbar is pinned',
+    headerPreviewDesc:
+      'Hover over it to check the hover color. The actual header is shown on hover or when the toolbar is pinned',
 
     resetToDefaults:     'Reset to Defaults',
     resetToDefaultsDesc: 'Restore all options to defaults (applied when you click Save)',

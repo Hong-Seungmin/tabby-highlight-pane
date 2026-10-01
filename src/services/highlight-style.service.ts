@@ -70,7 +70,16 @@ export class HighlightStyleService {
       userConfig,
       // 동적 모드: 저장된 borderColor가 있어도 현재 테마 색상으로 덮어씀
       isDynamic ? { borderColor: themeColor, toolbarBorderColor: themeColor } : {},
-    )
+    ) as HighlightConfig
+
+    // 활성 헤더: 테마 색상 적용 + 1-15번이면 현재 테마 색상표의 해당 색상으로 덮어씀
+    // (0번 = Tabby 기본은 CSS를 생성하지 않으므로 색상 해석 불필요)
+    if (config.headerBgTheme && config.headerBgThemeIndex > 0) {
+      config.headerBgColor = this.getThemeColor(config.headerBgThemeIndex)
+    }
+    if (config.headerFgTheme && config.headerFgThemeIndex > 0) {
+      config.headerFgColor = this.getThemeColor(config.headerFgThemeIndex)
+    }
 
     let el = document.getElementById(STYLE_ELEMENT_ID) as HTMLStyleElement | null
     if (!el) {
