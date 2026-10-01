@@ -106,7 +106,7 @@ export const DEFAULT_CONFIG: HighlightConfig = {
   headerBgTheme: true,
   headerBgThemeIndex: 0,
   headerBgColor: '#000000',
-  headerBgAlpha: 1,
+  headerBgAlpha: 0.5,
   headerFgTheme: true,
   headerFgThemeIndex: 0,
   headerFgColor: '#ffffff',
