@@ -42,10 +42,15 @@ export function getActiveThemeColor (
 }
 
 /**
- * getComputedStyle 결과("rgb(r, g, b)" / "rgba(r, g, b, a)")를 hex + alpha로 변환합니다.
+ * CSS 색상("#rgb" / "#rrggbb" / "rgb(r, g, b)" / "rgba(r, g, b, a)")을 hex + alpha로 변환합니다.
  * @returns 변환 실패 시 null
  */
 export function parseCssColor (value: string | null | undefined): { hex: string, alpha: number } | null {
+  const hexMatch = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.exec((value ?? '').trim())
+  if (hexMatch) {
+    const h = hexMatch[1].length === 3 ? hexMatch[1].replace(/./g, c => c + c) : hexMatch[1]
+    return { hex: '#' + h.toUpperCase(), alpha: 1 }
+  }
   const m = /^rgba?\(\s*(\d+)[\s,]+(\d+)[\s,]+(\d+)(?:[\s,/]+([\d.]+))?\s*\)$/i.exec((value ?? '').trim())
   if (!m) return null
   const hex = '#' + [m[1], m[2], m[3]]
@@ -55,12 +60,20 @@ export function parseCssColor (value: string | null | undefined): { hex: string,
 }
 
 /**
- * 현재 화면에 렌더링된 Tabby 툴바의 기본 배경·글자 색상을 읽습니다.
- * 툴바가 없으면 각각 null을 반환합니다.
+ * 현재 Tabby 테마가 적용한 툴바 기본 배경·글자 색상을 읽습니다.
+ *  1. 렌더링된 terminal-toolbar의 계산된 스타일
+ *  2. (툴바가 없으면) Tabby 테마 변수 --bs-body-bg / --bs-body-color
+ * 읽지 못한 항목은 null을 반환합니다.
  */
 export function readTabbyToolbarColors (): { bg: { hex: string, alpha: number } | null, fg: string | null } {
   const toolbar = document.querySelector('terminal-toolbar')
-  if (!toolbar) return { bg: null, fg: null }
-  const style = getComputedStyle(toolbar)
-  return { bg: parseCssColor(style.backgroundColor), fg: parseCssColor(style.color)?.hex ?? null }
+  if (toolbar) {
+    const style = getComputedStyle(toolbar)
+    return { bg: parseCssColor(style.backgroundColor), fg: parseCssColor(style.color)?.hex ?? null }
+  }
+  const root = getComputedStyle(document.documentElement)
+  return {
+    bg: parseCssColor(root.getPropertyValue('--bs-body-bg')),
+    fg: parseCssColor(root.getPropertyValue('--bs-body-color'))?.hex ?? null,
+  }
 }

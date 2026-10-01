@@ -59,7 +59,7 @@ export default {
     headerFgColor:       'Header Text & Icon Color',
     headerFgColorDesc:   'Text and icon color in the header, to keep it readable on a custom background',
     tabbyDefault:        'Tabby default',
-    tabbyDefaultDesc:    "When on, Tabby's default style is used as-is",
+    tabbyDefaultDesc:    "When on, follows the toolbar color of the current Tabby theme (updates with the theme)",
     headerPreview:       'Header Preview',
     headerPreviewDesc:   'The header is shown on hover or when the toolbar is pinned',
 

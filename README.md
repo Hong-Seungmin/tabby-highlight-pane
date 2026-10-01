@@ -16,7 +16,7 @@ A [Tabby](https://tabby.sh) plugin that visually highlights the **active split p
 - **Active pane highlight** — configurable border color, width, and inner/outer glow effect
 - **Inactive pane dimming** — smoothly lowers opacity of unfocused panes (only in split layouts)
 - **Toolbar highlight** — brightens the toolbar of the focused pane with a matching border and glow
-- **Active header colors** — custom background and text/icon color for the focused pane's header, in split and (optionally) non-split tabs. Each color has a *Tabby default* toggle; by default Tabby's own toolbar style is kept
+- **Active header colors** — custom background and text/icon color for the focused pane's header, in split and (optionally) non-split tabs. Each color has a *Tabby default* toggle; when on (default), the header keeps Tabby's theme-based toolbar colors (`--bs-body-bg` / `--bs-body-color`) and follows theme changes
 - **Smooth transitions** — per-section configurable duration (active / inactive / toolbar) with direction-aware easing
 - **Active ↔ Toolbar sync** — link or decouple active pane and toolbar settings independently
 - **Auto theme color** — automatically picks a color from the current terminal palette (dark/light aware)

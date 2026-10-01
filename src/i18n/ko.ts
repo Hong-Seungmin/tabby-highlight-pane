@@ -58,7 +58,7 @@ export default {
     headerFgColor:       '헤더 글자·아이콘 색상',
     headerFgColorDesc:   '배경색 변경으로 가시성이 떨어질 때 헤더 내 텍스트·아이콘 색상을 지정합니다',
     tabbyDefault:        'Tabby 기본값',
-    tabbyDefaultDesc:    '켜면 Tabby 기본 스타일을 그대로 사용합니다',
+    tabbyDefaultDesc:    '켜면 Tabby 테마의 툴바 색상을 따릅니다 (테마 변경 시 자동 반영)',
     headerPreview:       '헤더 미리보기',
     headerPreviewDesc:   '헤더는 마우스를 올리거나 툴바를 고정(pin)했을 때 표시됩니다',
 

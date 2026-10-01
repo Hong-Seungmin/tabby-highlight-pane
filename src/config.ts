@@ -43,6 +43,7 @@ export interface HighlightConfig {
 
   // 활성 헤더 (6개) — 포커스된 pane의 툴바(헤더) 배경·글자 색상
   // *Auto=true 이면 Tabby 기본 스타일을 그대로 사용 (CSS 덮어쓰기 없음)
+  //   → Tabby 테마가 툴바를 var(--bs-body-bg) / var(--bs-body-color)로 칠하므로 테마(색상표)를 따라감
   headerSinglePane: boolean   // 분할하지 않은 탭의 헤더에도 적용
   headerBgAuto: boolean       // 배경색: Tabby 기본값 사용
   headerBgColor: string       // 배경색 (hex)
@@ -93,8 +94,10 @@ export const DEFAULT_CONFIG: HighlightConfig = {
   paneMargin: 3,
   paneRadius: 6,
 
-  // 활성 헤더 — 기본값은 Tabby 기본 툴바 스타일과 동일
-  //   (tabby-terminal: background rgba(0, 0, 0, .75), 글자색은 테마 전경색 상속)
+  // 활성 헤더 — 기본값은 Tabby 기본 툴바 스타일을 그대로 사용 (*Auto=true)
+  //   Tabby 테마: tab-body terminal-toolbar { background: var(--bs-body-bg) }, 글자색은 --bs-body-color 상속
+  //   (테마가 색상표를 따르면 각각 터미널 색상표의 background / foreground)
+  //   Color 값은 *Auto를 끌 때 렌더링된 색상을 읽지 못한 경우의 초기값
   headerSinglePane: true,
   headerBgAuto: true,
   headerBgColor: '#000000',

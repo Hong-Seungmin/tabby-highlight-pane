@@ -580,7 +580,7 @@ import { readTabbyToolbarColors } from '../theme-utils'
           <div class="d-flex align-items-center gap-2 px-3"
             style="height:32px; min-width:180px; border-radius:6px; border:1px solid rgba(128,128,128,0.35)"
             [style.background]="getHeaderPreviewBg()"
-            [style.color]="config.headerFgAuto ? null : config.headerFgColor">
+            [style.color]="config.headerFgAuto ? 'var(--bs-body-color)' : config.headerFgColor">
             <i class="fas fa-terminal"></i>
             <span style="font-size:0.85rem">user&#64;host: ~</span>
           </div>
@@ -794,11 +794,11 @@ export class HighlightPaneSettingsComponent implements OnInit, OnDestroy {
     this.onChange()
   }
 
-  /** 미리보기 칩 배경 — 기본값 사용 시 Tabby 기본 배경 */
+  /** 미리보기 칩 배경 — 기본값 사용 시 Tabby 테마의 툴바 배경 변수 */
   getHeaderPreviewBg (): string {
-    const auto = this.config.headerBgAuto
-    const [r, g, b] = hexToRgb(auto ? DEFAULT_CONFIG.headerBgColor : this.config.headerBgColor)
-    return `rgba(${r}, ${g}, ${b}, ${auto ? DEFAULT_CONFIG.headerBgAlpha : this.config.headerBgAlpha})`
+    if (this.config.headerBgAuto) return 'var(--bs-body-bg)'
+    const [r, g, b] = hexToRgb(this.config.headerBgColor)
+    return `rgba(${r}, ${g}, ${b}, ${this.config.headerBgAlpha})`
   }
 
   getThemeColor (): string {
