@@ -51,6 +51,14 @@ export default {
     toolbarBrightnessDesc:'Adjusts brightness while keeping the original color',
 
     resetToDefaults:     'Reset to Defaults',
+    resetToDefaultsDesc: 'Restore all options to defaults (applied when you click Save)',
+
+    save:                'Save',
+    cancel:              'Cancel',
+    discard:             "Don't Save",
+    unsavedChanges:      'Unsaved changes',
+    leaveConfirmMessage: 'You have unsaved changes in Highlight Pane settings.',
+    leaveConfirmDetail:  'Do you want to save your changes? Otherwise the last saved settings will be restored.',
   },
 }
 

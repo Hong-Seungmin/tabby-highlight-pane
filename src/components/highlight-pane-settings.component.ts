@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core'
-import { ConfigService, ThemesService } from 'tabby-core'
+import { Component, OnDestroy, OnInit } from '@angular/core'
+import { TranslateService } from '@ngx-translate/core'
+import { ConfigService, PlatformService } from 'tabby-core'
 import { DEFAULT_CONFIG, HighlightConfig } from '../config'
-import { getActiveThemeColor } from '../theme-utils'
+import { HighlightStyleService } from '../services/highlight-style.service'
 
 /**
  * Highlight Pane 설정 화면 컴포넌트
@@ -10,11 +11,15 @@ import { getActiveThemeColor } from '../theme-utils'
  * 다국어 지원: @ngx-translate/core TranslateService 기반
  *  - PluginI18nService.init() 에서 번역 등록 및 언어 활성화
  *  - 템플릿에서 | translate 파이프 사용
+ *
+ * 저장 방식: 편집 값은 미리보기로만 반영되고, [저장] 버튼을 눌러야 설정 파일에 기록됩니다.
+ *  - [취소]: 마지막으로 저장된 값으로 복원
+ *  - 저장하지 않고 화면을 떠나면 확인창으로 저장 여부를 묻습니다
  */
 @Component({
   selector: 'highlight-pane-settings',
   template: `
-    <div class="container-fluid" style="padding-bottom: 2rem">
+    <div class="container-fluid">
       <h3>
         <i class="fas fa-highlighter me-2" style="color:#85A4AE"></i>
         Highlight Pane
@@ -28,7 +33,7 @@ import { getActiveThemeColor } from '../theme-utils'
         </div>
         <div class="form-check form-switch">
           <input class="form-check-input" type="checkbox" id="hp-enabled"
-            [(ngModel)]="config.enabled" (ngModelChange)="save()">
+            [(ngModel)]="config.enabled" (ngModelChange)="onChange()">
           <label class="form-check-label" for="hp-enabled"></label>
         </div>
       </div>
@@ -48,7 +53,7 @@ import { getActiveThemeColor } from '../theme-utils'
           <div class="d-flex align-items-center gap-2">
             <input type="range" class="form-range" min="0" max="10" step="1"
               style="width:140px; flex-shrink:0"
-              [(ngModel)]="config.paneMargin" (ngModelChange)="save()">
+              [(ngModel)]="config.paneMargin" (ngModelChange)="onChange()">
             <span class="text-muted" style="display:inline-block; width:52px; text-align:right">{{ config.paneMargin }}px</span>
           </div>
         </div>
@@ -61,7 +66,7 @@ import { getActiveThemeColor } from '../theme-utils'
           <div class="d-flex align-items-center gap-2">
             <input type="range" class="form-range" min="0" max="20" step="1"
               style="width:140px; flex-shrink:0"
-              [(ngModel)]="config.paneRadius" (ngModelChange)="save()">
+              [(ngModel)]="config.paneRadius" (ngModelChange)="onChange()">
             <span class="text-muted" style="display:inline-block; width:52px; text-align:right">{{ config.paneRadius }}px</span>
           </div>
         </div>
@@ -234,7 +239,7 @@ import { getActiveThemeColor } from '../theme-utils'
           <div class="d-flex align-items-center gap-2">
             <input type="range" class="form-range" min="0.5" max="1" step="0.05"
               style="width:140px; flex-shrink:0"
-              [(ngModel)]="config.opacity" (ngModelChange)="save()">
+              [(ngModel)]="config.opacity" (ngModelChange)="onChange()">
             <span class="text-muted" style="display:inline-block; width:52px; text-align:right">{{ config.opacity | number:'1.0-2' }}</span>
           </div>
         </div>
@@ -267,7 +272,7 @@ import { getActiveThemeColor } from '../theme-utils'
           <div class="d-flex align-items-center gap-2">
             <input type="range" class="form-range" min="0.1" max="1" step="0.05"
               style="width:140px; flex-shrink:0"
-              [(ngModel)]="config.inactiveOpacity" (ngModelChange)="save()">
+              [(ngModel)]="config.inactiveOpacity" (ngModelChange)="onChange()">
             <span class="text-muted" style="display:inline-block; width:52px; text-align:right">{{ config.inactiveOpacity | number:'1.0-2' }}</span>
           </div>
         </div>
@@ -277,7 +282,7 @@ import { getActiveThemeColor } from '../theme-utils'
           <div class="d-flex align-items-center gap-2">
             <input type="range" class="form-range" min="0" max="1000" step="50"
               style="width:140px; flex-shrink:0"
-              [(ngModel)]="config.inactiveTransition" (ngModelChange)="save()">
+              [(ngModel)]="config.inactiveTransition" (ngModelChange)="onChange()">
             <span class="text-muted" style="display:inline-block; width:52px; text-align:right">{{ config.inactiveTransition }}ms</span>
           </div>
         </div>
@@ -477,31 +482,97 @@ import { getActiveThemeColor } from '../theme-utils'
           <div class="d-flex align-items-center gap-2">
             <input type="range" class="form-range" min="1" max="2" step="0.05"
               style="width:140px; flex-shrink:0"
-              [(ngModel)]="config.toolbarBrightness" (ngModelChange)="save()">
+              [(ngModel)]="config.toolbarBrightness" (ngModelChange)="onChange()">
             <span class="text-muted" style="display:inline-block; width:52px; text-align:right">{{ config.toolbarBrightness | number:'1.0-2' }}x</span>
           </div>
         </div>
 
-        <!-- Reset button -->
-        <div class="mt-4">
-          <button class="btn btn-secondary btn-sm" (click)="reset()">
-            <i class="fas fa-undo me-1"></i> {{ 'highlightPane.resetToDefaults' | translate }}
-          </button>
-        </div>
-
       </ng-container>
+
+      <!-- ────── Action bar (Reset / Cancel / Save) ────── -->
+      <div class="hp-action-bar d-flex align-items-center gap-2 mt-4">
+        <button class="btn btn-secondary btn-sm" (click)="reset()"
+          [title]="'highlightPane.resetToDefaultsDesc' | translate">
+          <i class="fas fa-undo me-1"></i> {{ 'highlightPane.resetToDefaults' | translate }}
+        </button>
+        <div class="flex-grow-1"></div>
+        <span *ngIf="isDirty" class="text-warning" style="font-size:0.8rem">
+          <i class="fas fa-circle me-1" style="font-size:0.5rem; vertical-align:middle"></i>
+          {{ 'highlightPane.unsavedChanges' | translate }}
+        </span>
+        <button class="btn btn-secondary btn-sm" [disabled]="!isDirty" (click)="cancel()">
+          <i class="fas fa-times me-1"></i> {{ 'highlightPane.cancel' | translate }}
+        </button>
+        <button class="btn btn-primary btn-sm" [disabled]="!isDirty" (click)="save()">
+          <i class="fas fa-check me-1"></i> {{ 'highlightPane.save' | translate }}
+        </button>
+      </div>
     </div>
   `,
+  styles: [`
+    .hp-action-bar {
+      position: sticky;
+      bottom: 0;
+      z-index: 10;
+      padding: 0.75rem 0;
+      background: var(--bs-body-bg, var(--theme-bg, inherit));
+      border-top: 1px solid rgba(133, 164, 174, 0.25);
+    }
+  `],
 })
-export class HighlightPaneSettingsComponent implements OnInit {
+export class HighlightPaneSettingsComponent implements OnInit, OnDestroy {
   config: HighlightConfig = { ...DEFAULT_CONFIG }
+  /** 마지막으로 저장된 상태 (변경 여부 판별용) */
+  private savedSnapshot = ''
 
-  constructor (public configService: ConfigService, private themesService: ThemesService) {}
+  constructor (
+    public configService: ConfigService,
+    private highlightStyle: HighlightStyleService,
+    private platform: PlatformService,
+    private translate: TranslateService,
+  ) {}
 
   ngOnInit (): void {
     this.config = this.loadConfig()
+    this.savedSnapshot = this.snapshot()
   }
 
+  /**
+   * 저장하지 않은 변경사항을 남긴 채 화면을 떠나면 확인창을 띄웁니다.
+   * 응답 전까지는 편집 중인 값(미리보기)이 그대로 유지됩니다.
+   */
+  ngOnDestroy (): void {
+    if (!this.isDirty) {
+      this.highlightStyle.clearPreview()
+      return
+    }
+    const t = (key: string) => this.translate.instant(`highlightPane.${key}`)
+    this.platform.showMessageBox({
+      type: 'warning',
+      message: t('leaveConfirmMessage'),
+      detail: t('leaveConfirmDetail'),
+      buttons: [t('save'), t('discard')],
+      defaultId: 0,
+      cancelId: 1,
+    }).then(result => {
+      if (result.response === 0) {
+        this.save()
+      } else {
+        this.highlightStyle.clearPreview()
+      }
+    }).catch(() => this.highlightStyle.clearPreview())
+  }
+
+  get isDirty (): boolean {
+    return this.snapshot() !== this.savedSnapshot
+  }
+
+  /** 편집 값 변경 시 호출 — 저장하지 않고 미리보기만 반영합니다 */
+  onChange (): void {
+    this.highlightStyle.setPreview(this.config)
+  }
+
+  /** 편집 중인 값을 설정 파일에 저장합니다 */
   save (): void {
     if (!this.configService.store.highlightPane) {
       this.configService.store.highlightPane = {}
@@ -515,7 +586,16 @@ export class HighlightPaneSettingsComponent implements OnInit {
       ? { ...this.config, borderColor: DEFAULT_CONFIG.borderColor, toolbarBorderColor: DEFAULT_CONFIG.toolbarBorderColor }
       : { ...this.config }
     Object.assign(this.configService.store.highlightPane, toSave)
+    this.savedSnapshot = this.snapshot()
+    this.highlightStyle.clearPreview()
     this.configService.save()
+  }
+
+  /** 편집 중인 값을 버리고 마지막으로 저장된 값으로 되돌립니다 */
+  cancel (): void {
+    this.config = this.loadConfig()
+    this.savedSnapshot = this.snapshot()
+    this.highlightStyle.clearPreview()
   }
 
   reset (): void {
@@ -523,7 +603,7 @@ export class HighlightPaneSettingsComponent implements OnInit {
     const themeColor = this.getThemeColor()
     this.config.borderColor = themeColor
     this.config.toolbarBorderColor = themeColor
-    this.save()
+    this.onChange()
   }
 
   onDynamicColorChange (dynamic: boolean): void {
@@ -532,7 +612,7 @@ export class HighlightPaneSettingsComponent implements OnInit {
       this.config.borderColor = themeColor
       this.config.toolbarBorderColor = themeColor
     }
-    this.save()
+    this.onChange()
   }
 
   onThemeColorIndexChange (value: number): void {
@@ -543,21 +623,21 @@ export class HighlightPaneSettingsComponent implements OnInit {
       this.config.borderColor = themeColor
       this.config.toolbarBorderColor = themeColor
     }
-    this.save()
+    this.onChange()
   }
 
   onActivePaneCommon (activeKey: keyof HighlightConfig, toolbarKey: keyof HighlightConfig, value: any): void {
     if (this.config.syncActiveToolbar) {
       (this.config as any)[toolbarKey] = value
     }
-    this.save()
+    this.onChange()
   }
 
   onToolbarCommon (activeKey: keyof HighlightConfig, toolbarKey: keyof HighlightConfig, value: any): void {
     if (this.config.syncActiveToolbar) {
       (this.config as any)[activeKey] = value
     }
-    this.save()
+    this.onChange()
   }
 
   toggleSync (): void {
@@ -571,7 +651,7 @@ export class HighlightPaneSettingsComponent implements OnInit {
       this.config.toolbarOuterGlowAlpha = this.config.outerGlowAlpha
       this.config.toolbarTransition     = this.config.transition
     }
-    this.save()
+    this.onChange()
   }
 
   /**
@@ -594,17 +674,18 @@ export class HighlightPaneSettingsComponent implements OnInit {
   }
 
   getThemeColor (): string {
-    const idx = this.config?.themeColorIndex ?? DEFAULT_CONFIG.themeColorIndex
-    const currentThemeName = this.themesService.findCurrentTheme()?.name ?? ''
-    return getActiveThemeColor(this.configService.store, currentThemeName, idx)
+    return this.highlightStyle.getThemeColor(this.config?.themeColorIndex ?? DEFAULT_CONFIG.themeColorIndex)
+  }
+
+  private snapshot (): string {
+    return JSON.stringify(this.config)
   }
 
   private loadConfig (): HighlightConfig {
     const u = this.configService.store?.highlightPane ?? {}
     const isDynamic = u.dynamicBorderColor !== false
     const colorIndex = u.themeColorIndex ?? DEFAULT_CONFIG.themeColorIndex
-    const currentThemeName = this.themesService.findCurrentTheme()?.name ?? ''
-    const themeColor = getActiveThemeColor(this.configService.store, currentThemeName, colorIndex)
+    const themeColor = this.highlightStyle.getThemeColor(colorIndex)
     return {
       enabled:               u.enabled               ?? DEFAULT_CONFIG.enabled,
       borderColor:           isDynamic ? themeColor : (u.borderColor        ?? themeColor),

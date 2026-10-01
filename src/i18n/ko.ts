@@ -50,6 +50,14 @@ export default {
     toolbarBrightnessDesc:'기존 색상을 유지하며 밝기만 조절합니다',
 
     resetToDefaults:     '기본값으로 초기화',
+    resetToDefaultsDesc: '모든 항목을 기본값으로 되돌립니다 (저장을 눌러야 적용됩니다)',
+
+    save:                '저장',
+    cancel:              '취소',
+    discard:             '저장 안 함',
+    unsavedChanges:      '저장되지 않은 변경사항',
+    leaveConfirmMessage: 'Highlight Pane 설정에 저장되지 않은 변경사항이 있습니다.',
+    leaveConfirmDetail:  '변경사항을 저장하시겠습니까? 저장하지 않으면 마지막으로 저장된 설정으로 되돌아갑니다.',
   },
 }
 
