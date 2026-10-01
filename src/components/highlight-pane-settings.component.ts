@@ -84,13 +84,8 @@ import { readTabbyHeaderColors } from '../theme-utils'
             <div class="title">{{ 'highlightPane.applyThemeColor' | translate }}</div>
             <div class="description">{{ 'highlightPane.applyThemeColorDesc' | translate }}</div>
           </div>
+          <!-- 토글을 맨 오른쪽에 고정 — ON/OFF·색상 변경 시 위치가 흔들리지 않도록 -->
           <div class="d-flex align-items-center gap-2">
-            <!-- ON/OFF toggle -->
-            <div class="form-check form-switch mb-0">
-              <input class="form-check-input" type="checkbox" id="hp-dynamic-color"
-                [(ngModel)]="config.dynamicBorderColor" (ngModelChange)="onDynamicColorChange($event)">
-              <label class="form-check-label" for="hp-dynamic-color"></label>
-            </div>
             <!-- Color index (visible only when dynamic mode is ON) -->
             <ng-container *ngIf="config.dynamicBorderColor">
               <span class="text-muted" style="font-size:0.85rem">{{ 'highlightPane.colorLabel' | translate }}</span>
@@ -106,6 +101,12 @@ import { readTabbyHeaderColors } from '../theme-utils'
               <!-- Theme color preview -->
               <div class="hp-swatch" [style.background]="getThemeColor()" [title]="getThemeColor()"></div>
             </ng-container>
+            <!-- ON/OFF toggle -->
+            <div class="form-check form-switch mb-0">
+              <input class="form-check-input" type="checkbox" id="hp-dynamic-color"
+                [(ngModel)]="config.dynamicBorderColor" (ngModelChange)="onDynamicColorChange($event)">
+              <label class="form-check-label" for="hp-dynamic-color"></label>
+            </div>
           </div>
         </div>
 
@@ -506,12 +507,8 @@ import { readTabbyHeaderColors } from '../theme-utils'
             <div class="description">{{ 'highlightPane.headerThemeDesc' | translate }}</div>
           </div>
           <div class="d-flex align-items-center gap-2">
-            <div class="form-check form-switch mb-0">
-              <input class="form-check-input" type="checkbox" id="hp-header-bg-theme"
-                [(ngModel)]="config.headerBgTheme" (ngModelChange)="onHeaderThemeChange('bg', $event)">
-              <label class="form-check-label" for="hp-header-bg-theme"></label>
-            </div>
             <ng-container *ngIf="config.headerBgTheme">
+              <span *ngIf="!(config.headerBgThemeIndex > 0)" class="hp-badge">{{ 'highlightPane.tabbyDefault' | translate }}</span>
               <span class="text-muted" style="font-size:0.85rem">{{ 'highlightPane.colorLabel' | translate }}</span>
               <input type="number" class="form-control form-control-sm"
                 style="width:58px; text-align:center; padding:2px 6px"
@@ -523,8 +520,12 @@ import { readTabbyHeaderColors } from '../theme-utils'
               </span>
               <div class="hp-swatch" [style.background]="getHeaderThemeSwatch('bg')"
                 [title]="config.headerBgColor"></div>
-              <span *ngIf="!(config.headerBgThemeIndex > 0)" class="hp-badge">{{ 'highlightPane.tabbyDefault' | translate }}</span>
             </ng-container>
+            <div class="form-check form-switch mb-0">
+              <input class="form-check-input" type="checkbox" id="hp-header-bg-theme"
+                [(ngModel)]="config.headerBgTheme" (ngModelChange)="onHeaderThemeChange('bg', $event)">
+              <label class="form-check-label" for="hp-header-bg-theme"></label>
+            </div>
           </div>
         </div>
 
@@ -568,12 +569,8 @@ import { readTabbyHeaderColors } from '../theme-utils'
             <div class="description">{{ 'highlightPane.headerThemeDesc' | translate }}</div>
           </div>
           <div class="d-flex align-items-center gap-2">
-            <div class="form-check form-switch mb-0">
-              <input class="form-check-input" type="checkbox" id="hp-header-fg-theme"
-                [(ngModel)]="config.headerFgTheme" (ngModelChange)="onHeaderThemeChange('fg', $event)">
-              <label class="form-check-label" for="hp-header-fg-theme"></label>
-            </div>
             <ng-container *ngIf="config.headerFgTheme">
+              <span *ngIf="!(config.headerFgThemeIndex > 0)" class="hp-badge">{{ 'highlightPane.tabbyDefault' | translate }}</span>
               <span class="text-muted" style="font-size:0.85rem">{{ 'highlightPane.colorLabel' | translate }}</span>
               <input type="number" class="form-control form-control-sm"
                 style="width:58px; text-align:center; padding:2px 6px"
@@ -585,8 +582,12 @@ import { readTabbyHeaderColors } from '../theme-utils'
               </span>
               <div class="hp-swatch" [style.background]="getHeaderThemeSwatch('fg')"
                 [title]="config.headerFgColor"></div>
-              <span *ngIf="!(config.headerFgThemeIndex > 0)" class="hp-badge">{{ 'highlightPane.tabbyDefault' | translate }}</span>
             </ng-container>
+            <div class="form-check form-switch mb-0">
+              <input class="form-check-input" type="checkbox" id="hp-header-fg-theme"
+                [(ngModel)]="config.headerFgTheme" (ngModelChange)="onHeaderThemeChange('fg', $event)">
+              <label class="form-check-label" for="hp-header-fg-theme"></label>
+            </div>
           </div>
         </div>
 
